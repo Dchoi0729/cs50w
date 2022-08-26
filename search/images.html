@@ -1,12 +1,30 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
         <link href="styles.css" rel="stylesheet">
-        <title>Search</title>
+        <link rel="icon" type="image/x-icon" href="favicon.ico">
+        <title>Google: Images</title>
     </head>
     <body>
+        <header>
+            <a class="nav" href="index.html">Home</a>
+        </header>
         <main class="flexbox-col">
-            TODO
+            <div class="logo--container">
+                <image class="logo" src="./googlelogo.png">
+                <div class="logo--text">images</div>
+            </div>
+            <form class="flexbox-col" action="https://www.google.com/search" >
+                <div class="main--search">
+                    <img class="main--searchicon" src="searchicon.png">
+                    <input class="main--textbox" autofocus type="text" name="q">
+                </div>
+                <button hidden type="submit" class="main--button" name="tbm" value="isch">Google Search</button>
+            </form>
         </main>
     </body>
 </html>
+

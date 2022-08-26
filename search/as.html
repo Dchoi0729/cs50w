@@ -1,13 +1,39 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
         <link href="styles.css" rel="stylesheet">
-        <title>Search</title>
+        <link rel="icon" type="image/x-icon" href="favicon.ico">
+        <title>Google: Advanced Search</title>
     </head>
     <body>
-        
-        <main class="flexbox-col">
-            TODO
+        <header>
+            <a class="nav" href="index.html">Home</a>
+        </header>
+        <main class="as">
+            <div class="as--header">
+                Advanced Search
+            </div>
+            <form class="as--form" action="https://www.google.com/search">
+                Find pages with...
+                <div class="as--formbox">
+                    all these words: <input class="as--text" type="text" name="as_q">
+                </div>
+                <div class="as--formbox">
+                    this exact word or phrase: <input class="as--text" type="text" name="as_epq">
+                </div>
+                <div class="as--formbox">
+                    any of these words: <input class="as--text" type="text" name="as_oq">
+                </div>
+                <div class="as--formbox">
+                    none of these words: <input class="as--text" type="text" name="as_eq">
+                </div>
+                <div class="as--formbox">
+                    <button type="submit" class="as--button">Advanced Search</button>
+                </div>
+            </form>
         </main>
     </body>
 </html>
