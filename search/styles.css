@@ -5,13 +5,27 @@
     align-items: center;
 }
 
+.nav{
+    text-decoration:none;
+    color: black;
+    cursor: pointer;
+}
+
+.nav:hover{
+    text-decoration: underline;
+}
+
 header{
-    padding: 10px;
+    padding-top: 10px;
+    width: 99%;
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
 }
 
 
 main{
-    height: 90vh;
+    height: 70vh;
 }
 
 .main--search{
@@ -25,6 +39,7 @@ main{
     margin: 0 auto;
     min-width: 360px;
     max-width: 584px;
+    width: 45vw;
     margin-top: 20px;
     margin-bottom: 20px;
 }
@@ -34,14 +49,15 @@ main{
     height: 20px;
     margin-left: 10px;
     margin-right: 10px;
+    opacity: 0.7;
 }
 
 .main--textbox{
     border: none;
     height: 42px;
-    min-width: 290px;
-    max-width: 584px;
+    width: calc(-24px + 88%);
 }
+
 
 .main--textbox:focus{
     outline-style: none;
