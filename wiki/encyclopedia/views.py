@@ -23,4 +23,8 @@ def entry(request, name):
         })
 
 def search(request):
-    return render(request, "encyclopedia/search.html")
+    if request.method == "POST":
+        name=request.POST
+    return render(request, "encyclopedia/search.html",{
+        "name" : name
+    })
