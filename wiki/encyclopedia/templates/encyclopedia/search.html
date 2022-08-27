@@ -5,5 +5,14 @@
 {% endblock %}
 
 {% block body %}
-    <h1>TODO {{name}} </h1>
+    <h1>List of pages containing '{{query}}'</h1>
+    
+    <ul>
+        {% for entry in entries %}
+            <li><a href="{% url 'entry' name=entry %}">{{ entry }}</a></li>
+        
+            {% empty %}
+            <li>None</li>
+        {% endfor %}
+    </ul>
 {% endblock %}
