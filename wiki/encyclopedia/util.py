@@ -35,3 +35,17 @@ def get_entry(title):
         return f.read().decode("utf-8")
     except FileNotFoundError:
         return None
+
+def decode_markdown(content):
+    """
+    Given a string of content, function returns the html
+    friendly version of the Markdown content
+    """
+
+    # Replace header h1 tags
+    content = re.sub(r"\#([^\]]+)\n", r"<h1>\1</h1>", content)
+
+    # Replace anchor tags
+    content = re.sub(r"\[([^\]]+)\]\(([^\)]+)\)", r"<a href=\2>\1</a>", content)
+
+    return content

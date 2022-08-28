@@ -1,4 +1,4 @@
-# Sample Markdown 
+# Sample Markdown
 
 Simple way to format your words!
 
