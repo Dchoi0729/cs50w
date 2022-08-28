@@ -6,7 +6,7 @@ from django import forms
 from . import util
 
 import random
-import markdown
+import markdown2
 
 
 class NewPageForm(forms.Form):
@@ -24,7 +24,7 @@ def entry(request, name):
     if entry:
         return render(request, "encyclopedia/entry.html", {
             "name" : name,
-            "entry" : markdown.markdown(entry)
+            "entry" : markdown2.markdown(entry)
         })
     else:
         return render(request, "encyclopedia/apology.html", {
@@ -86,6 +86,5 @@ def edit(request, name):
     else:
         return render(request, "encyclopedia/edit.html", {
             "name" : name,
-            "form": EditPageForm(),
             "content" : util.get_entry(name)
         })
