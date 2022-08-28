@@ -5,5 +5,12 @@
 {% endblock %}
 
 {% block body %}
-    {{ entry | safe }}
+    <div class="col">
+        <div class="entry--top">
+            <a href="{% url 'edit' name=name %}"> Edit Page</a>
+        </div>
+        <div>
+            {{ entry | safe }}
+        </div>
+    </div>
 {% endblock %}

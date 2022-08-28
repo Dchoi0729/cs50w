@@ -6,7 +6,36 @@
 
 {% block body %}
     <h1>Create a new wiki!</h1>
-    <form>
-        Title: <input class="newtitle" type="text" name="title" placeholder="Title">
+    <form action="{% url 'new' %}" method="POST">
+        {% csrf_token %}
+
+        <textarea readonly class="new--sample">
+# Sample Markdown 
+
+Simple way to format your words!
+
+* headings
+* paragraphs
+* lists
+* links
+* and more!
+
+## Subtitle
+
+You can **bold** or *italicize* texts.
+
+For more information , go to [guide](https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax)
+        </textarea>
+
+        {% for field in form %}
+            <div class="new--fieldWrapper">
+                {{ field.label_tag }} 
+                <br>
+                {{ field }}
+                {{ field.errors }}
+            </div>
+        {% endfor %}
+        <input type="submit" value="Save Page">
+
     </form>
 {% endblock %}
