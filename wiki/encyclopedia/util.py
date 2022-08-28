@@ -46,28 +46,35 @@ def decode_markdown(content):
     # Standardize all line spacings
     content = content.replace("\\r\\n", "\\n")
 
-    # <h2> tags: Replace subtitleheader
-    content = re.sub(r"\#{2}(.*?)\\n", r"<h2>\1</h2>", content)
+    # Add white space to end
+    content = content + "\\n"
 
-    # <h1> tags: Replace header
-    content = re.sub(r"\#{1}(.*?)\\n", r"<h1>\1</h1>", content)
+    # <h2> tags: Replace subtitleheader (#xxx\n -> <h2>xxx</h2>\n)
+    content = re.sub(r"\#{2}(.*?)\\n", r"<h2>\1</h2>\\n", content)
 
-    # <b> tags: Replace bold words
+    # <h1> tags: Replace header (#xxx\n -> <h1>xxx</h1>\n)
+    content = re.sub(r"\#{1}(.*?)\\n", r"<h1>\1</h1>\\n", content)
+
+    # <b> tags: Replace bold words (**xxx** -> <strong>xxx</strong>)
     content = re.sub(r"\*{2}(.*?)\*{2}",r"<strong>\1</strong>", content)
 
-    # <em> tags: Replace italicized words
+    # <em> tags: Replace italicized words (*xxx* -> <em>xxx</em>)
     content = re.sub(r"\*{1}([^\s]+)\*{1}",r"<em>\1</em>", content)
 
-    # <ul> <li> tags: Replace the start and end of list
-    content = re.sub(r"\\n\*(.*?)\\n\\n",r"<ul><li>\1</li></ul>", content)
+    # <ul> <li> tags: Replace the start and end of list (\n*xxx\n\n -> <ul><li>xxx</li></ul>)
+    content = re.sub(r"\\n\*(.*?)\\n\\n",r"<ul><li>\1</li></ul>\\n", content)
 
-    # <p> tags: Replace new lines for paragraphs
-    content = re.sub(r"\\n(.*?)\\n",r"<p>\1</p>", content)
+    # <p> tags: Replace new lines for paragraphs (\nxxx\n -> <p>xxx</p>)
+    content = re.sub(r"\\n([^\\].*?)\\n",r"<p>\1</p>", content)
     
-    # <li> tags: Replace the list elements in between
-    content = re.sub(r"<p>\* | </p>\*","</li> <li>", content)
+    # <li> tags: Replace the list elements in between 
+    content = re.sub(r"<p>\*","</li> <li>", content)
+    content = re.sub(r"</p>\*","</li> <li>", content)
 
-    # <a> tags: Replace links
+    # <a> tags: Replace links ([x](y) -> <a href=y>x</a>)
     content = re.sub(r"\[([^\]]+)\]\(([^\)]+)\)", r"<a href=\2>\1</a>", content)
+
+    # Delete all remaining \\n tags
+    content = re.sub(r"\\n", "", content)
 
     return content

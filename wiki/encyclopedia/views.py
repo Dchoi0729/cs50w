@@ -6,7 +6,6 @@ from django import forms
 from . import util
 
 import random
-import markdown2
 
 
 class NewPageForm(forms.Form):
@@ -24,9 +23,7 @@ def entry(request, name):
     if entry:
         return render(request, "encyclopedia/entry.html", {
             "name" : name,
-            "b" : repr(entry).replace("\\r\\n", "\\n"),
-            "a" : util.decode_markdown(repr(entry)),
-            "entry" : markdown2.markdown(entry)
+            "entry" : util.decode_markdown(repr(entry))
         })
     else:
         return render(request, "encyclopedia/apology.html", {
