@@ -41,11 +41,33 @@ def decode_markdown(content):
     Given a string of content, function returns the html
     friendly version of the Markdown content
     """
+    content = content[1:len(content)-1]
+    
+    # Standardize all line spacings
+    content = content.replace("\\r\\n", "\\n")
 
-    # Replace header h1 tags
-    content = re.sub(r"\#([^\]]+)\n", r"<h1>\1</h1>", content)
+    # <h2> tags: Replace subtitleheader
+    content = re.sub(r"\#{2}(.*?)\\n", r"<h2>\1</h2>", content)
 
-    # Replace anchor tags
+    # <h1> tags: Replace header
+    content = re.sub(r"\#{1}(.*?)\\n", r"<h1>\1</h1>", content)
+
+    # <b> tags: Replace bold words
+    content = re.sub(r"\*{2}(.*?)\*{2}",r"<strong>\1</strong>", content)
+
+    # <em> tags: Replace italicized words
+    content = re.sub(r"\*{1}([^\s]+)\*{1}",r"<em>\1</em>", content)
+
+    # <ul> <li> tags: Replace the start and end of list
+    content = re.sub(r"\\n\*(.*?)\\n\\n",r"<ul><li>\1</li></ul>", content)
+
+    # <p> tags: Replace new lines for paragraphs
+    content = re.sub(r"\\n(.*?)\\n",r"<p>\1</p>", content)
+    
+    # <li> tags: Replace the list elements in between
+    content = re.sub(r"<p>\* | </p>\*","</li> <li>", content)
+
+    # <a> tags: Replace links
     content = re.sub(r"\[([^\]]+)\]\(([^\)]+)\)", r"<a href=\2>\1</a>", content)
 
     return content

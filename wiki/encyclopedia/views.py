@@ -24,7 +24,7 @@ def entry(request, name):
     if entry:
         return render(request, "encyclopedia/entry.html", {
             "name" : name,
-            "b" : repr(entry),
+            "b" : repr(entry).replace("\\r\\n", "\\n"),
             "a" : util.decode_markdown(repr(entry)),
             "entry" : markdown2.markdown(entry)
         })
