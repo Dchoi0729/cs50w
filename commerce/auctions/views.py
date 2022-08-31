@@ -4,17 +4,24 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
 from django.forms import ModelForm
+from django.contrib.auth.decorators import login_required
 
 from .models import User, Listing, Bid, Comment
 
 
 class CreateListingForm(ModelForm):
+    required_css_class = 'required'
+
+
     class Meta:
         model = Listing
         exclude = ()
 
+
 def index(request):
-    return render(request, "auctions/index.html")
+    return render(request, "auctions/index.html", {
+        "listings": Listing.objects.order_by("time_created").reverse()
+    })
 
 
 def login_view(request):
@@ -68,7 +75,14 @@ def register(request):
     else:
         return render(request, "auctions/register.html")
 
+
+@login_required
 def create(request):
+    if request.method == "POST":
+        listing_form_instance = CreateListingForm(request.POST)
+        listing_form_instance.save()
+        return HttpResponseRedirect(reverse("index"))
+    
     return render(request, "auctions/create.html", {
-        "form" : CreateListingForm()
+        "form" : CreateListingForm(auto_id='createform--%s')
     })

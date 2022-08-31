@@ -8,8 +8,10 @@
         <div>{{ message }}</div>
     {% endif %}
 
-    <form action="{% url 'create' %}" method="post">
+    <form id="createform" action="{% url 'create' %}" method="post">
         {% csrf_token %}
         {{ form.as_p }}
+
+        <input type="submit" value="Create">
     </form>
 {% endblock %}
