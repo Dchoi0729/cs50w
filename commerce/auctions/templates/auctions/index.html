@@ -5,12 +5,20 @@
 
     {% for listing in listings %}
         <div class="index__listing">
-            <img class="index__listing__img" src="{{ listing.image_url }}" >
+            <div class="index__listing__img-container">
+                {% if listing.image_url %}
+                    <img class="index__listing__img" src="{{ listing.image_url }}" >
+                {% else %}
+                    <img class="index__listing__img-none" src="https://cdn.pixabay.com/photo/2016/01/20/18/35/x-1152114_960_720.png" >
+                {% endif %}
+            </div>
             <div class="index__listing__word-container">
-                <h1>{{ listing.title }}</h1>
-                <h3>Price: {{ listing.starting_bid }}</h3>
-                Description: <br>
-                {{ listing.description }}
+                <a class="index__listing__title" href="{% url 'listing' key=listing.pk %}">{{ listing.title }}</a>
+                <h5>Price: ${{ listing.starting_bid }}</h5>
+                <h5 class="index__listing__description">
+                    Description: <br>
+                    {{ listing.description }}
+                </h5>
                 <em>Created: {{ listing.time_created }}</em>
             </div>
         </div>

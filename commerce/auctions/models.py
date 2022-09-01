@@ -14,7 +14,7 @@ class Listing(models.Model):
     time_created = models.DateTimeField(auto_now_add=True)
     description = models.TextField()
     starting_bid = models.DecimalField(max_digits=19, decimal_places=2)
-    image_url = models.URLField(blank=True, default="https://images.unsplash.com/photo-1628155930542-3c7a64e2c833?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1074&q=80")
+    image_url = models.URLField(blank=True)
     category = models.CharField(blank=True, max_length=64)
 
     def __str__(self):

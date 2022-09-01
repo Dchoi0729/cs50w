@@ -84,5 +84,11 @@ def create(request):
         return HttpResponseRedirect(reverse("index"))
     
     return render(request, "auctions/create.html", {
-        "form" : CreateListingForm(auto_id='createform--%s')
+        "form" : CreateListingForm(initial={'image_url': ""}, auto_id='createform--%s')
+    })
+
+
+def listing(request, key):
+    return render(request, "auctions/listing.html", {
+        "key" : key
     })
