@@ -2,7 +2,37 @@
 
 {% block body %}
 
-    <h2>Listing</h2>
+    <h2>Listing: {{listing.title}}</h2>
+    
+    {% if user.is_authenticated %}
+        {% if not in_watchlist%}
+            <form action "{% url 'listing' key=listing.pk %}" method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="add">
+                <input class="listing__watchlist-btn" type="submit" value="Add to watchlist">
+            </form>
+        {% else %}
+            <form action "{% url 'listing' key=listing.pk %}" method="POST">
+                {% csrf_token %}
+                Watchlist
+                <input type="hidden" name="action" value="delete">
+                <input class="listing__watchlist-btn" type="submit" value="Remove">
+            </form>
+        {% endif %}
+    {% endif %}
 
-    {{ key }}
+    <img src="{{listing.image_url}}">
+
+    <h5>{{listing.description}}</h5>
+
+    <h4>${{price}}</h4>
+    
+    <form action "{% url 'listing' key=listing.pk %}" method="POST">
+        {% csrf_token %}
+        {{bid_form}}
+        <input type="hidden" name="action" value="bid">
+        <input type="submit" value="Place Bid">
+    </form>
+
+    
 {% endblock %}

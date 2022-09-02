@@ -1,7 +1,7 @@
 {% extends "auctions/layout.html" %}
 
 {% block body %}
-    <h2>Active Listings</h2>
+    <h2>{{ page_title }}</h2>
 
     {% for listing in listings %}
         <div class="index__listing">
@@ -20,7 +20,7 @@
                 <h5 class="index__listing__description">
                     {{ listing.description }}
                 </h5>
-                <em>Created: {{ listing.time_created }}</em>
+                <em>Created: {{ listing.time_created }} {{listing.creator}}</em>
             </div>
         </div>
     {% endfor %}

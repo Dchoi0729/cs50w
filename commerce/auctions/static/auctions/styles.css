@@ -46,6 +46,13 @@ body {
     font-size: 15px;
 }
 
+.listing__watchlist-btn{
+    border: none;
+    border-radius: 5px;
+    background-color: rgb(155, 155, 155);
+    color: white;
+}
+
 .required{
     font-weight: bold;
 }
