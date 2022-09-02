@@ -8,21 +8,15 @@ body {
     border: 1px solid black;
     margin-bottom: 15px;
     display: flex;
-    height: 20vw;
-    min-height: 250px;
-    min-width: 1125px;
+    max-height: 400px;
 }
 
 .index__listing__img-container{
     width: 20vw;
-    height: 20vw;
     display: flex;
     justify-content: center;
     align-items: center;
     border-right: 1px solid black;;
-    min-height: 250px;
-    min-width: 248px;
-
 }
 
 .index__listing__img{
@@ -37,22 +31,18 @@ body {
 .index__listing__word-container{
     width: 70vw;
     padding-left: 10px;
-    position: relative;
-    height: 20vw;
-    min-width: 850px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
 }
 
 .index__listing__title{
-    position: relative;
-    top: 0px;
-    right: 0px;
     font-size: 30px;
     font-weight: bold;
 }
 
 .index__listing__description{
     width: 100%;
-    border: 1px solid black;
     font-size: 15px;
 }
 

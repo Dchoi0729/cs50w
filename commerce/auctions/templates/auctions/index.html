@@ -13,10 +13,11 @@
                 {% endif %}
             </div>
             <div class="index__listing__word-container">
-                <a class="index__listing__title" href="{% url 'listing' key=listing.pk %}">{{ listing.title }}</a>
-                <h5>Price: ${{ listing.starting_bid }}</h5>
+                <div>
+                    <a class="index__listing__title" href="{% url 'listing' key=listing.pk %}">{{ listing.title }}</a>
+                    <h5>Price: ${{ listing.starting_bid }}</h5>
+                </div>
                 <h5 class="index__listing__description">
-                    Description: <br>
                     {{ listing.description }}
                 </h5>
                 <em>Created: {{ listing.time_created }}</em>
