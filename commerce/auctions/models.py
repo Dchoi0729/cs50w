@@ -14,6 +14,7 @@ class Listing(models.Model):
     time_created = models.DateTimeField(auto_now_add=True)
     description = models.TextField()
     starting_bid = models.DecimalField(max_digits=19, decimal_places=2)
+    curr_price = models.DecimalField(max_digits=19, decimal_places=2, blank=True, null=True)
     image_url = models.URLField(blank=True)
     category = models.CharField(blank=True, max_length=64)
     creator = models.ForeignKey(User, on_delete=models.CASCADE, related_name="creator", blank=True, null=True)

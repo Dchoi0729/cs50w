@@ -15,7 +15,12 @@
             <div class="index__listing__word-container">
                 <div>
                     <a class="index__listing__title" href="{% url 'listing' key=listing.pk %}">{{ listing.title }}</a>
-                    <h5>Price: ${{ listing.starting_bid }}</h5>
+                    <h5>
+                        Price: ${{ listing.curr_price }}
+                        {% if listing.curr_price == listing.starting_bid %}
+                            <em>(Starting Bid)</em>
+                        {% endif %}
+                    </h5>
                 </div>
                 <h5 class="index__listing__description">
                     {{ listing.description }}

@@ -6,6 +6,7 @@ from django.urls import reverse
 from django.forms import ModelForm
 from django.contrib.auth.decorators import login_required
 
+
 from .models import User, Listing, Bid, Comment
 
 
@@ -14,7 +15,8 @@ class CreateListingForm(ModelForm):
 
     class Meta:
         model = Listing
-        exclude = ["creator"]
+        exclude = ["creator", "curr_price"]
+
 
 class BidForm(ModelForm):
     required_css_class = 'required'
@@ -22,6 +24,22 @@ class BidForm(ModelForm):
     class Meta:
         model = Bid
         exclude = ["user", "listing"]
+    
+    def __init__(self, *args, **kwargs):
+        self.key = kwargs.pop("key")
+        super(BidForm, self).__init__(*args, **kwargs)
+
+    def clean(self):
+        data = self.cleaned_data
+        listing = Listing.objects.get(pk=self.key)
+        bid = data.get("bid")
+        
+        if bid < listing.starting_bid and listing.starting_bid == listing.curr_price:
+            self.add_error(None, "Bid must be as large as the starting bid" )
+        if bid <= listing.curr_price and not listing.starting_bid == listing.curr_price:
+            self.add_error(None, "Bid has to be greater than the current price")    
+        
+        return data
 
 
 def index(request):
@@ -89,6 +107,7 @@ def create(request):
         form = CreateListingForm(request.POST)
         listing = form.save(commit=False)
         listing.creator = request.user
+        listing.curr_price = request.POST["starting_bid"]
         listing.save()
         return HttpResponseRedirect(reverse("index"))
     
@@ -99,37 +118,37 @@ def create(request):
 
 def listing(request, key):
     listing = Listing.objects.get(pk=key)
-    
-    curr_price = get_curr_price(key)
-
-    if request.method == "POST":
-        if request.POST["action"] == "add":
-            request.user.watchlist.add(listing)
-
-        elif request.POST["action"] == "delete":
-            request.user.watchlist.remove(listing)
-            
-        elif request.POST["action"] == "bid":
-            form = BidForm(request.POST)
-            if form.is_valid():
-                if form.cleaned_data["bid"] < curr_price:
-                    return HttpResponseRedirect(reverse("listing", args=(key,)))
-            bid = form.save(commit=False)
-            bid.user = request.user
-            bid.listing = listing
-            bid.save()
-        
-        return HttpResponseRedirect(reverse("listing", args=(key,)))
+    curr_price = listing.curr_price
     
     # If user is signed in
     if request.user.is_authenticated:
         watchlist = request.user.watchlist.all()
         in_watchlist = True if listing in watchlist else False
 
+        if request.method == "POST":
+            form = BidForm(key=key, data=request.POST)
+
+            if form.is_valid():
+                bid = form.save(commit=False)
+                bid.user = request.user
+                bid.listing = listing
+                bid.save()
+                
+                Listing.objects.filter(pk=key).update(curr_price=request.POST["bid"])
+
+                return HttpResponseRedirect(reverse("listing", args=(key,)))
+            else:
+                return render(request, "auctions/listing.html", {
+                "listing": listing,
+                "in_watchlist": in_watchlist,
+                "bid_form": form,
+                "price": curr_price
+            })
+
         return render(request, "auctions/listing.html", {
                 "listing": listing,
                 "in_watchlist": in_watchlist,
-                "bid_form": BidForm(),
+                "bid_form": BidForm(key=key),
                 "price": curr_price
             })
 
@@ -140,8 +159,19 @@ def listing(request, key):
     })
 
 
-@login_required
 def watchlist(request):
+    if request.method == "POST":
+        key = request.POST["key"]
+        listing = Listing.objects.get(pk=key)
+
+        if request.POST["action"] == "add":
+            request.user.watchlist.add(listing)
+
+        elif request.POST["action"] == "delete":
+            request.user.watchlist.remove(listing)
+
+        return HttpResponseRedirect(reverse("listing", args=(key,)))
+
     return render(request, "auctions/index.html", {
         "page_title": "My Watchlist",
         "listings": request.user.watchlist.all()
