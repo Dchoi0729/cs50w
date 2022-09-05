@@ -5,7 +5,7 @@ from django.shortcuts import render
 from django.urls import reverse
 from django.forms import ModelForm
 from django.contrib.auth.decorators import login_required
-
+from django import forms
 
 from .models import User, Listing, Bid, Comment
 
@@ -18,13 +18,20 @@ class CreateListingForm(ModelForm):
         exclude = ["creator", "curr_price"]
 
 
+class CommentForm(ModelForm):
+    required_css_class = 'required'
+
+    class Meta:
+        model = Comment
+        exclude = ["user", "listing"]
+
 class BidForm(ModelForm):
     required_css_class = 'required'
 
     class Meta:
         model = Bid
         exclude = ["user", "listing"]
-    
+
     def __init__(self, *args, **kwargs):
         self.key = kwargs.pop("key")
         super(BidForm, self).__init__(*args, **kwargs)
@@ -33,10 +40,12 @@ class BidForm(ModelForm):
         data = self.cleaned_data
         listing = Listing.objects.get(pk=self.key)
         bid = data.get("bid")
+
+        listing_bids = Bid.objects.filter(listing=listing)
         
-        if bid < listing.starting_bid and listing.starting_bid == listing.curr_price:
+        if len(listing_bids) == 0 and bid < listing.curr_price:
             self.add_error(None, "Bid must be as large as the starting bid" )
-        if bid <= listing.curr_price and not listing.starting_bid == listing.curr_price:
+        if len(listing_bids) > 0 and bid <= listing.curr_price:
             self.add_error(None, "Bid has to be greater than the current price")    
         
         return data
@@ -119,43 +128,67 @@ def create(request):
 def listing(request, key):
     listing = Listing.objects.get(pk=key)
     curr_price = listing.curr_price
+    bad_bid_form = False
+    bad_comment_form = False
     
     # If user is signed in
     if request.user.is_authenticated:
         watchlist = request.user.watchlist.all()
         in_watchlist = True if listing in watchlist else False
+        no_of_bids = len(Bid.objects.filter(listing=listing))
+        curr_bid = Bid.objects.get(listing=listing, bid=curr_price)
 
         if request.method == "POST":
-            form = BidForm(key=key, data=request.POST)
+            if request.POST["action"] == "bid":
+                bid_form = BidForm(key=key, data=request.POST)
 
-            if form.is_valid():
-                bid = form.save(commit=False)
-                bid.user = request.user
-                bid.listing = listing
-                bid.save()
-                
-                Listing.objects.filter(pk=key).update(curr_price=request.POST["bid"])
+                if bid_form.is_valid():
+                    bid = bid_form.save(commit=False)
+                    bid.user = request.user
+                    bid.listing = listing
+                    bid.save()
+                    
+                    Listing.objects.filter(pk=key).update(curr_price=request.POST["bid"])
 
-                return HttpResponseRedirect(reverse("listing", args=(key,)))
-            else:
-                return render(request, "auctions/listing.html", {
-                "listing": listing,
-                "in_watchlist": in_watchlist,
-                "bid_form": form,
-                "price": curr_price
-            })
+                    return HttpResponseRedirect(reverse("listing", args=(key,)))
+                else:
+                    bad_bid_form = True
+
+            if request.POST["action"] == "comment":
+                comment_form = CommentForm(request.POST)
+
+                if comment_form.is_valid():
+                    comment = comment_form.save(commit=False)
+                    comment.user = request.user
+                    comment.listing = listing
+                    comment.save()
+
+                    return HttpResponseRedirect(reverse("listing", args=(key,)))
+                else:
+                    bad_comment_form = True
+
+
+        if not bad_bid_form:
+            bid_form = BidForm(key=key)
+        if not bad_comment_form:
+            comment_form = CommentForm()
 
         return render(request, "auctions/listing.html", {
                 "listing": listing,
                 "in_watchlist": in_watchlist,
-                "bid_form": BidForm(key=key),
-                "price": curr_price
+                "bid_form": bid_form,
+                "price": curr_price,
+                "no_of_bids": no_of_bids,
+                "curr_bid": curr_bid,
+                "comment_form": comment_form,
+                "comments": Comment.objects.all()
             })
 
     # Default listing page for users not signed in
     return render(request, "auctions/listing.html", {
         "listing": listing,
-        "price": curr_price
+        "price": curr_price,
+        "comments": Comment.objects.all()
     })
 
 
@@ -176,6 +209,21 @@ def watchlist(request):
         "page_title": "My Watchlist",
         "listings": request.user.watchlist.all()
     })
+
+
+def category(request):
+    ##Create set 
+    categories = set()
+
+    listings = Listing.objects.all()
+    for listing in listings:
+        if not listing.category == "":
+            categories.add(listing.category)
+
+    return render(request, "auctions/category.html", {
+        "categories" : categories
+    })
+
 
 
 def get_curr_price(key):

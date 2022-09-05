@@ -22,24 +22,68 @@
             </form>
         {% endif %}
     {% endif %}
-        
-    <img src="{{listing.image_url}}">
+    
+    <div class="listing__img-container">
+        <img class="listing__img" src="{{listing.image_url}}">
+    </div>
 
-    <h5>{{listing.description}}</h5>
+    <h5 class="listing__description">{{listing.description}}</h5>
 
-    <h4>
+    <h4 class="listing__price">
         ${{price}}
-        {% if listing.curr_price == listing.starting_bid %}
-            <em>(Starting Bid)</em>
-        {% endif %}
     </h4>
     
-    <form action="{% url 'listing' key=listing.pk %}" method="POST">
-        {% csrf_token %}
-        {{bid_form}}
-        <input type="hidden" name="key" value="{{listing.pk}}">
-        <input type="submit" value="Place Bid">
-    </form>
+    {% if user.is_authenticated %}
+        <form class="listing__bid" action="{% url 'listing' key=listing.pk %}" method="POST">
+            {% csrf_token %}
+            <h5 class="listing__bid-description">
+                {{no_of_bids}} bid(s) so far.
+                {% if no_of_bids == 0 %}
+                    It is still at the starting bid!
+                {% endif %}
+                {% if curr_bid.user == request.user %}
+                    Your bid is the current bid.
+                {% endif %}
+            </h5>
+            {{bid_form.bid}}
+            {{bid_form.non_field_errors}}
+            <input type="hidden" name="action" value="bid">
+            <input type="hidden" name="key" value="{{listing.pk}}">
+            <input class="listing__btn" type="submit" value="Place Bid">
+        </form>
+    {% endif %}
 
+    <div class="listing__details">
+        <h3>Details</h3>
+        <ul>
+            <li>
+                Listed by: {{listing.creator}}
+            </li>
+            <li>
+                Category: 
+                {% if listing.category == "" %}
+                    No Category Listed
+                {% else %}
+                    {{listing.category}}
+                {% endif %}
+            </li>
+        </ul>
+    </div>
+
+    <h3>Comments</h3>
+    {% if user.is_authenticated %}
+    <form class="listing__comments-form" action="{% url 'listing' key=listing.pk %}" method="POST">
+        {% csrf_token %}
+        {{comment_form.comment}}
+        <input type="hidden" name="action" value="comment">
+        <input class="listing__btn" type="submit" value="Make Comment">
+    </form>
+    {% endif %}
+
+    <ul class="listing__comments">
+    {% for comment in comments %}
+        <li>{{comment}}</li>
+    {% endfor %}
+    </ul>
     
 {% endblock %}

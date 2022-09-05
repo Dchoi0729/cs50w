@@ -53,6 +53,63 @@ body {
     color: white;
 }
 
+.listing__img-container{
+    display: flex;
+    justify-content: center;
+}
+
+.listing__img{
+    margin-top: 10px;
+    margin-bottom: 10px;
+    max-width: 1000px;
+    max-height: 600px;
+}
+
+.listing__description{
+    font-weight: normal;
+    margin-bottom: 30px;
+}
+
+.listing__price{
+    margin-bottom: 15px;
+}
+
+.listing__bid{
+    display:flex;
+    flex-direction: column;
+}
+
+.listing__bid-description{
+    margin-bottom: 10px;
+    margin-top: 10px;
+    font-size: 18px;
+    font-weight: normal;
+}
+
+#id_bid{
+    height: 35px;
+}
+
+.listing__btn{
+    margin-top: 20px;
+    margin-bottom: 30px;
+    width: 130px;
+    height: 40px;
+    background-color: rgb(56, 155, 212);
+    color:white;
+    border: none;
+    border-radius: 8px;
+}
+
+.listing__comments-form{
+    display: flex;
+    flex-direction: column;
+}
+
+.listing__comments{
+    font-size: 20px;
+}
+
 .required{
     font-weight: bold;
 }

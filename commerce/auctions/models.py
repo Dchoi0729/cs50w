@@ -40,4 +40,4 @@ class Comment(models.Model):
     def __str__(self):
         formatted_time = self.time.strftime("%Y-%m-%d %H:%M:%S")
 
-        return f"{self.listing}: {self.user} \"{self.comment}\" ({formatted_time})"
+        return f"{self.user}: \"{self.comment}\" ({formatted_time})"
