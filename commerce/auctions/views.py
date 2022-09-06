@@ -15,7 +15,7 @@ class CreateListingForm(ModelForm):
 
     class Meta:
         model = Listing
-        exclude = ["creator", "curr_price"]
+        exclude = ["creator", "curr_price", "active"]
 
 
 class CommentForm(ModelForm):
@@ -54,7 +54,7 @@ class BidForm(ModelForm):
 def index(request):
     return render(request, "auctions/index.html", {
         "page_title": "Active Listing",
-        "listings": Listing.objects.order_by("time_created").reverse()
+        "listings": Listing.objects.filter(active=True).order_by("time_created").reverse()
     })
 
 
@@ -136,7 +136,10 @@ def listing(request, key):
         watchlist = request.user.watchlist.all()
         in_watchlist = True if listing in watchlist else False
         no_of_bids = len(Bid.objects.filter(listing=listing))
-        curr_bid = Bid.objects.get(listing=listing, bid=curr_price)
+        if no_of_bids > 0:
+            curr_bid = Bid.objects.get(listing=listing, bid=curr_price)
+        else:
+            curr_bid = None
 
         if request.method == "POST":
             if request.POST["action"] == "bid":
@@ -207,17 +210,16 @@ def watchlist(request):
 
     return render(request, "auctions/index.html", {
         "page_title": "My Watchlist",
-        "listings": request.user.watchlist.all()
+        "listings": request.user.watchlist.filter(active=True)
     })
 
 
 def category(request):
-    ##Create set 
     categories = set()
 
     listings = Listing.objects.all()
     for listing in listings:
-        if not listing.category == "":
+        if not listing.category == "" and not listing.active==False:
             categories.add(listing.category)
 
     return render(request, "auctions/category.html", {
@@ -225,6 +227,35 @@ def category(request):
     })
 
 
+def categories(request, type):
+    return render(request, "auctions/index.html", {
+        "page_title": f"Category: {type}",
+        "listings": Listing.objects.filter(category=type, active=True)
+    })
+
+
+def transaction(request):
+    if request.method == "POST":
+        key = request.POST["key"]
+        listing = Listing.objects.get(pk=key)
+        listing.active=False
+        listing.save()
+
+        no_of_bids = len(Bid.objects.filter(listing=listing))
+        if no_of_bids > 0:
+            curr_bid = Bid.objects.get(listing=listing, bid=listing.curr_price)
+            owner = curr_bid.user
+            owner.bought.add(listing)
+        
+        seller = listing.creator
+        seller.sold.add(listing)
+
+        return HttpResponseRedirect(reverse("listing", args=(key,)))
+
+    return render(request, "auctions/transaction.html", {
+        "bought_listings": request.user.bought.all(),
+        "sold_listings": request.user.sold.all()
+    })
 
 def get_curr_price(key):
     listing = Listing.objects.get(pk=key)

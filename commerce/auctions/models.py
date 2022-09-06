@@ -8,6 +8,8 @@ from datetime import datetime
 
 class User(AbstractUser):
     watchlist = models.ManyToManyField("Listing", blank=True, related_name="watchers")
+    bought = models.ManyToManyField("Listing", blank=True, related_name="owner")
+    sold = models.ManyToManyField("Listing", blank=True, related_name="seller")
 
 class Listing(models.Model):
     title = models.CharField(max_length=64)
@@ -18,6 +20,7 @@ class Listing(models.Model):
     image_url = models.URLField(blank=True)
     category = models.CharField(blank=True, max_length=64)
     creator = models.ForeignKey(User, on_delete=models.CASCADE, related_name="creator", blank=True, null=True)
+    active = models.BooleanField(default=True)
 
     def __str__(self):
         return f"{self.title}"

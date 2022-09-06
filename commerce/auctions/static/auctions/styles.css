@@ -4,6 +4,28 @@ body {
     padding-right: 30px;
 }
 
+#nav-watchlist{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#nav-watchlist__link{
+    padding-right: 8px
+}
+
+.nav-watchlist__count{
+    border-radius: 5px;
+    background-color: rgb(155, 155, 155);
+    color: white;
+    font-size: 12px;
+    width: 20px;
+    display: flex;
+    justify-content: center;
+    margin-right: 15px;
+    margin-top: 1px;
+}
+
 .index__listing{
     border: 1px solid black;
     margin-bottom: 15px;
@@ -44,6 +66,15 @@ body {
 .index__listing__description{
     width: 100%;
     font-size: 15px;
+}
+
+.listing__header{
+    display: flex;
+    gap: 15px;
+}
+
+.listing__active-status{
+    margin-top: 3px;
 }
 
 .listing__watchlist-btn{

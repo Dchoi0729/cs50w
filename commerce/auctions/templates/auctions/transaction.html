@@ -1,0 +1,55 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+    <h2>Purchased</h2>
+
+    {% for listing in bought_listings %}
+        <div class="index__listing">
+            <div class="index__listing__img-container">
+                {% if listing.image_url %}
+                    <img class="index__listing__img" src="{{ listing.image_url }}" >
+                {% else %}
+                    <img class="index__listing__img-none" src="https://cdn.pixabay.com/photo/2016/01/20/18/35/x-1152114_960_720.png" >
+                {% endif %}
+            </div>
+            <div class="index__listing__word-container">
+                <div>
+                    <a class="index__listing__title" href="{% url 'listing' key=listing.pk %}">{{ listing.title }}</a>
+                    <h5>
+                        Price: ${{ listing.curr_price }}
+                    </h5>
+                </div>
+                <h5 class="index__listing__description">
+                    {{ listing.description }}
+                </h5>
+                <em>Created: {{ listing.time_created }} {{listing.creator}}</em>
+            </div>
+        </div>
+    {% endfor %}
+
+    <h2>Sold</h2>
+
+    {% for listing in sold_listings %}
+        <div class="index__listing">
+            <div class="index__listing__img-container">
+                {% if listing.image_url %}
+                    <img class="index__listing__img" src="{{ listing.image_url }}" >
+                {% else %}
+                    <img class="index__listing__img-none" src="https://cdn.pixabay.com/photo/2016/01/20/18/35/x-1152114_960_720.png" >
+                {% endif %}
+            </div>
+            <div class="index__listing__word-container">
+                <div>
+                    <a class="index__listing__title" href="{% url 'listing' key=listing.pk %}">{{ listing.title }}</a>
+                    <h5>
+                        Price: ${{ listing.curr_price }}
+                    </h5>
+                </div>
+                <h5 class="index__listing__description">
+                    {{ listing.description }}
+                </h5>
+                <em>Created: {{ listing.time_created }} {{listing.creator}}</em>
+            </div>
+        </div>
+    {% endfor %}
+{% endblock %}

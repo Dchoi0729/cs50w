@@ -2,9 +2,21 @@
 
 {% block body %}
 
-    <h2>Listing: {{listing.title}}</h2>
-    
-    {% if user.is_authenticated %}
+    <form class="listing__header" action="{% url 'transaction' %}" method="POST">
+        {% csrf_token %}
+        <h2>Listing: {{listing.title}}</h2>
+        <input type="hidden" name="key" value="{{listing.pk}}">
+        {% if user == listing.creator and listing.active == True %}
+            <input type="submit" value="Close Listing">
+        {% endif %}
+        {% if listing.active != True %}
+            <h3 class="listing__active-status">
+                (Closed)
+            </h3>
+        {% endif %}
+    </form>
+
+    {% if user.is_authenticated and listing.active == True %}
         {% if not in_watchlist%}
             <form action="{% url 'watchlist' %}" method="POST">
                 {% csrf_token %}
@@ -33,7 +45,7 @@
         ${{price}}
     </h4>
     
-    {% if user.is_authenticated %}
+    {% if user.is_authenticated and listing.active == True %}
         <form class="listing__bid" action="{% url 'listing' key=listing.pk %}" method="POST">
             {% csrf_token %}
             <h5 class="listing__bid-description">
@@ -57,21 +69,21 @@
         <h3>Details</h3>
         <ul>
             <li>
-                Listed by: {{listing.creator}}
+                Listed by : {{listing.creator}}
             </li>
             <li>
-                Category: 
+                Category : 
                 {% if listing.category == "" %}
                     No Category Listed
                 {% else %}
-                    {{listing.category}}
+                    <a  href="{% url 'categories' type=listing.category %}">{{listing.category}}</a>
                 {% endif %}
             </li>
         </ul>
     </div>
 
     <h3>Comments</h3>
-    {% if user.is_authenticated %}
+    {% if user.is_authenticated and listing.active == True %}
     <form class="listing__comments-form" action="{% url 'listing' key=listing.pk %}" method="POST">
         {% csrf_token %}
         {{comment_form.comment}}

@@ -4,8 +4,16 @@
 
     <h2>Categories</h2>
 
-    {% for category in categories%}
-        <p>{{category}}</p> 
-    {% endfor %}
+    <ul>
+        {% for category in categories%}
+            <li>
+                <a  href="{% url 'categories' type=category %}">{{category}}</a>
+            </li>
+        {% empty %}
+            <li>
+                There are no categories recorded yet!
+            </li>
+        {% endfor %}
+    </ul>
     
 {% endblock %}

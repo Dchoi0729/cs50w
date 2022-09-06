@@ -24,11 +24,17 @@
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'create' %}">Create Listing</a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'watchlist' %}">My Watchlist</a>
+                <li class="nav-item" id="nav-watchlist">
+                    <a class="nav-link" id="nav-watchlist__link" href="{% url 'watchlist' %}">My Watchlist</a>
+                    <div class="nav-watchlist__count">
+                        {{user.watchlist.count}}
+                    </div>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'category' %}">Categories</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'transaction' %}">Completed Transaction</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'logout' %}">Log Out</a>
