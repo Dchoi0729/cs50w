@@ -9,7 +9,12 @@
         {% if user == listing.creator and listing.active == True %}
             <input type="submit" value="Close Listing">
         {% endif %}
-        {% if listing.active != True %}
+        {% if bought == True %}
+            <h3 class="listing__active-status">
+                (Bought)
+            </h3>
+        {% endif %}
+        {% if bought != True and listing.active != True %}
             <h3 class="listing__active-status">
                 (Closed)
             </h3>

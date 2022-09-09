@@ -175,6 +175,8 @@ def listing(request, key):
             bid_form = BidForm(key=key)
         if not bad_comment_form:
             comment_form = CommentForm()
+        
+        bought = listing in request.user.bought.all()
 
         return render(request, "auctions/listing.html", {
                 "listing": listing,
@@ -184,14 +186,15 @@ def listing(request, key):
                 "no_of_bids": no_of_bids,
                 "curr_bid": curr_bid,
                 "comment_form": comment_form,
-                "comments": Comment.objects.all()
+                "comments": Comment.objects.filter(listing=listing),
+                "bought": bought
             })
 
     # Default listing page for users not signed in
     return render(request, "auctions/listing.html", {
         "listing": listing,
         "price": curr_price,
-        "comments": Comment.objects.all()
+        "comments": Comment.objects.filter(listing=listing)
     })
 
 
@@ -249,6 +252,10 @@ def transaction(request):
         
         seller = listing.creator
         seller.sold.add(listing)
+
+        watchers = listing.watchers.all()
+        for watcher in watchers:
+            watcher.watchlist.remove(listing)
 
         return HttpResponseRedirect(reverse("listing", args=(key,)))
 
