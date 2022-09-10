@@ -2,6 +2,41 @@ textarea {
     min-height: 400px;
 }
 
-#compose-error{
-    margin-left:20px;
+.email{
+    border: 1px black solid;
+    display: flex;
+    margin-bottom: 10px;
+    padding: 10px;
+}
+
+.read{
+    background-color: rgb(207, 207, 207);
+}
+
+.email > h3{
+    font-size: 20px;
+}
+
+.email-sender{
+    font-weight: bold;
+}
+
+.email-subject{
+    margin-left: 15px;
+    margin-right: auto;
+    font-weight: normal;
+}
+
+.email-time{
+    font-weight: normal;
+    opacity: 0.7;
+}
+
+#button-reply{
+    margin-top: 10px;
+}
+
+#button-archive{
+    margin-top: 10px;
+    margin-left : 10px;
 }
