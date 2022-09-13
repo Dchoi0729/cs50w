@@ -1,3 +1,26 @@
 .body{
     padding: 10px 30px 10px 30px;
 }
+
+#profile{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+
+#profile-img{
+    height: 300px;
+    width: 300px;
+    object-fit: cover;
+    border-radius: 10px;
+}
+
+#profile-description{
+    height: 300px;
+    width: 300px;
+    border: 2px rgb(20, 204, 250) solid;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+}

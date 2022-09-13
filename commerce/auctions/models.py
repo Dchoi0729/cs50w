@@ -19,7 +19,7 @@ class Listing(models.Model):
     curr_price = models.DecimalField(max_digits=19, decimal_places=2, blank=True, null=True)
     image_url = models.URLField(blank=True)
     category = models.CharField(blank=True, max_length=64)
-    creator = models.ForeignKey(User, on_delete=models.CASCADE, related_name="creator", blank=True, null=True)
+    creator = models.ForeignKey(User, on_delete=models.CASCADE, related_name="listing", blank=True, null=True)
     active = models.BooleanField(default=True)
 
     def __str__(self):
