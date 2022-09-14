@@ -3,12 +3,24 @@ from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
+from django.forms import ModelForm
+from django import forms
 
-from .models import User
+from .models import User, Post
+
+class PostForm(ModelForm):
+    class Meta:
+        model = Post
+        exclude = ["user", "likes"]
+        widgets = {
+            'content': forms.Textarea(attrs={'rows': 4})
+        }
 
 
 def index(request):
-    return render(request, "network/index.html")
+    return render(request, "network/index.html",{
+        "form": PostForm()
+    })
 
 
 def login_view(request):

@@ -3,6 +3,8 @@ from django.db import models
 
 
 class User(AbstractUser):
+    profile_pic = models.URLField(default='https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png', blank=True)
+    bio = models.TextField(blank=True)
     following = models.ManyToManyField('self', related_name="followers", symmetrical=False, blank=True)
 
 

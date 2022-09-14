@@ -5,15 +5,20 @@
     <div id="profile">
         <img id="profile-img" src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80">
         <div id="profile-description">
-            <h1>{{ user }}</h1>
-            <h1>Followers:</h1>
-            <h1>Following:</h1>
-            <h1>Posts:</h1>
+            <h1 id="profile-name">{{ user }}</h1>
+            <div class="row">
+                <div class="col-sm-4 mx-auto center-block text-center">posts<br>0</div>
+                <div class="col-sm-4 mx-auto center-block text-center">following<br>28</div>
+                <div class="col-sm-4 mx-auto center-block text-center">followers<br>4</div>
+            </div>
+            <div id="profile-bio">
+                bio goes here
+            </div>
         </div>
     </div>
     <div id="posts">Posts go here!</div>
 {% endblock %}
 
 {% block script %}
-    <script src="{% static 'network/index.js' %}"></script>
+    <script src="{% static 'network/network.js' %}"></script>
 {% endblock %}

@@ -2,9 +2,18 @@
 {% load static %}
 
 {% block body %}
-    TODO
+    <div id="index">
+        <form id="post-form" method="post">
+            {% csrf_token %}
+            <h1 id="post-form-title">New Post</h1>
+            {{form.content}}
+            <input id="post-form-btn" class="btn btn-primary" type="submit" value="post">
+        </form>
+    </div>
+    <hr>
+    POSTS GO HERE
 {% endblock %}
 
 {% block script %}
-    <script src="{% static 'network/index.js' %}"></script>
+    <script src="{% static 'network/network.js' %}"></script>
 {% endblock %}

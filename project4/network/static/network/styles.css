@@ -2,11 +2,13 @@
     padding: 10px 30px 10px 30px;
 }
 
+/* profile page css */
 #profile{
     display: flex;
     justify-content: center;
     align-items: center;
     gap: 10px;
+    background-color: lightgray;
 }
 
 #profile-img{
@@ -23,4 +25,68 @@
     border-radius: 10px;
     display: flex;
     flex-direction: column;
+    align-items: center;
+    gap: 15px;
 }
+
+#profile-bio{
+    border: 1px solid black;
+    border-radius: 8px;
+    width: 250px;
+    height: 150px;
+    overflow: auto;
+    background-color: white;
+    padding: 2px;
+}
+/* profile page css */
+
+
+/* index page css */
+#index{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#post-form{
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    border: 1px solid gray;
+    border-radius: 3px;
+    width: 80vw;
+    max-width: 800px;
+    padding: 15px;
+}
+
+#post-form-title{
+    font-size: 25px;
+}
+
+#id-content{
+    height: 100px;
+}
+
+#post-form-btn{
+    width: 70px;
+}
+/* index page css */
+
+
+/* Scroll bar css*/
+/* width */
+::-webkit-scrollbar {
+    width: 15px;
+  }
+  
+  /* Track */
+  ::-webkit-scrollbar-track {
+    box-shadow: inset 0 0 5px grey;
+    border-radius: 8px;
+  }
+  
+  /* Handle */
+  ::-webkit-scrollbar-thumb {
+    background: lightgray;
+    border-radius: 8px;
+  }
