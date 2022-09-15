@@ -1,6 +1,28 @@
-.body{
+/* container for login.html and register.html*/
+.account-container{
     padding: 10px 30px 10px 30px;
 }
+/* container for login.html and register.html*/
+
+
+/* layout post div css */
+#posts{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+}
+
+.post-container{
+    border: 1px solid gray;
+    border-radius: 3px;
+    width: 80vw;
+    max-width: 800px;
+    height: 230px;
+}
+/* layout post div css */
+
+
 
 /* profile page css */
 #profile{
@@ -9,6 +31,8 @@
     align-items: center;
     gap: 10px;
     background-color: lightgray;
+    padding-top: 15px;
+    padding-bottom: 15px;
 }
 
 #profile-img{
@@ -63,12 +87,15 @@
     font-size: 25px;
 }
 
-#id-content{
-    height: 100px;
-}
-
 #post-form-btn{
     width: 70px;
+}
+
+#post-form-error{
+    margin-left: 5px;
+    color: red;
+    font-size: 15px;
+    font-style: italic;
 }
 /* index page css */
 

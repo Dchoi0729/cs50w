@@ -43,9 +43,13 @@
             </div>
           </nav>
         
-        <div class="body">
-            {% block body %}
+        {% block header %}
+        {% endblock %}
+
+        <div id="posts">
+            {% block post %}
             {% endblock %}
         </div>
+
     </body>
 </html>

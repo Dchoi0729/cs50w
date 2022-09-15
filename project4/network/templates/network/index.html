@@ -1,18 +1,23 @@
 {% extends "network/layout.html" %}
 {% load static %}
 
-{% block body %}
-    <div id="index">
-        <form id="post-form" method="post">
-            {% csrf_token %}
-            <h1 id="post-form-title">New Post</h1>
-            {{form.content}}
-            <input id="post-form-btn" class="btn btn-primary" type="submit" value="post">
-        </form>
-    </div>
-    <hr>
-    POSTS GO HERE
+{% block header %}
+    {% if user.is_authenticated %}
+        <div id="index">
+            <form id="post-form" method="post">
+                {% csrf_token %}
+                <h1 id="post-form-title">New Post</h1>
+                <textarea id="post-form-content" name="content" cols="40" rows="4" required></textarea>
+                <div>
+                    <input id="post-form-btn" class="btn btn-primary" type="submit" value="post">
+                    <span id="post-form-error"></span>
+                </div>
+            </form>
+        </div>
+        <hr>
+    {% endif %}
 {% endblock %}
+
 
 {% block script %}
     <script src="{% static 'network/network.js' %}"></script>

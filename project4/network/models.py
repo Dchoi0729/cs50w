@@ -13,3 +13,12 @@ class Post(models.Model):
     content = models.TextField()
     date = models.DateTimeField(auto_now_add=True)
     likes = models.ManyToManyField(User, related_name="liked_posts", blank=True)
+
+    def serialize(self):
+        return {
+            "id": self.id,
+            "user": self.user.id,
+            "content": self.content,
+            "date": self.date.strftime("%b %d %Y, %I:%M %p"),
+            "likes": self.likes.count()
+        }
