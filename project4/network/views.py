@@ -85,9 +85,15 @@ def following(request):
 
 
 def profile(request, name):
+    user = User.objects.get(username=name)
     return render(request, "network/profile.html", {
-        "name": name
+        "name": name,
+        "postCount": user.posts.all().count(),
+        "following": user.following.all().count(),
+        "followers": user.followers.all().count(),
+        "pic":user.profile_pic
     })
+
 
 @csrf_exempt
 @login_required
@@ -128,6 +134,10 @@ def posts(request, path):
         posts = Post.objects.filter(
             user=user
         )
+    elif page == "following":
+        following = tuple(request.user.following.all())
+        posts = Post.objects.filter(user__in = following)
+
     else:
         return JsonResponse({"error": "Invalid page."}, status=400)
 

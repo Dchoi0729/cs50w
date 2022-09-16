@@ -19,7 +19,52 @@
     width: 80vw;
     max-width: 800px;
     height: 230px;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
 }
+
+.post-profile-pic{
+    height: 50px;
+    width: 50px;
+    object-fit: cover;
+}
+
+.post-username{
+    font-size: 25px;
+    font-weight:bolder;
+    display: inline;
+    margin-left: 5px;
+    position: relative;
+    top: 3px;
+}
+
+.post-content{
+    border: 1px solid black;
+    height: 100%;
+    padding: 5px;
+    margin-top: 15px;
+}
+
+.post-footer{
+    display: flex;
+    align-items: center;
+}
+
+.post-heart{
+    height: 50px;
+    width: 50px;
+    cursor:pointer;
+}
+
+.post-likes{
+    margin-right: auto;
+}
+
+.post-time{
+    opacity: 0.8;
+}
+
 /* layout post div css */
 
 
@@ -33,6 +78,7 @@
     background-color: lightgray;
     padding-top: 15px;
     padding-bottom: 15px;
+    margin-bottom: 15px;
 }
 
 #profile-img{
@@ -98,6 +144,16 @@
     font-style: italic;
 }
 /* index page css */
+
+
+/* follwing page css */
+#following-header{
+    display: flex;
+    justify-content: center;
+    margin-top: 15px;
+    margin-bottom: 15px;
+}
+/* following page css */
 
 
 /* Scroll bar css*/
