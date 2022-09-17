@@ -143,7 +143,74 @@ def posts(request, path):
 
     # Return posts in reverse chronologial order
     posts = posts.order_by("-date").all()
-    return JsonResponse([post.serialize() for post in posts], safe=False)
+    
+    # Include whether current user liked post
+    serialized_posts = [post.serialize() for post in posts]
+    
+    for post in serialized_posts:
+        liked = request.user in Post.objects.get(id=post["id"]).likes.all()
+        post.update({"liked": liked, "self": request.user.username == post["user"]})
+
+    return JsonResponse(serialized_posts, safe=False)
+
+
+@csrf_exempt
+@login_required
+def post(request, post_id):
+
+    # Query for requested post
+    try:
+        post = Post.objects.get(id=post_id)
+    except Post.DoesNotExist:
+        return JsonResponse({"error": "Post not found."}, status=404)
+
+    if request.method == "GET":
+        liked = request.user in post.likes.all()
+        serialized_post = post.serialize()
+        serialized_post.update({"liked": liked, "self": request.user.username == post.user.username})
+        return JsonResponse(serialized_post, safe=False)
+
+    if request.method == "POST":
+        if json.loads(request.body).get("action") == "toggle-like":
+            liked = request.user in post.likes.all()
+            if liked:
+                post.likes.remove(request.user)
+            else:
+                post.likes.add(request.user)
+            post.save()
+            return JsonResponse({"message": "post like toggled successfully."}, status=201)
+        elif json.loads(request.body).get("action") == "edit-content":
+            content = json.loads(request.body).get("content")
+            if content == "":
+                return JsonResponse({"error": "post can not be blank."}, status=201)
+            else:
+                post.content = content
+                post.save()
+                return JsonResponse({"message": "post edited successfully."}, status=201)
+
+        return JsonResponse({"message": "this shouldn't run..."}, status=201)
+
+    '''
+    # Return email contents
+    if request.method == "GET":
+        return JsonResponse(email.serialize())
+
+    # Update whether email is read or should be archived
+    elif request.method == "PUT":
+        data = json.loads(request.body)
+        if data.get("read") is not None:
+            email.read = data["read"]
+        if data.get("archived") is not None:
+            email.archived = data["archived"]
+        email.save()
+        return HttpResponse(status=204)
+
+    # Email must be via GET or PUT
+    else:
+        return JsonResponse({
+            "error": "GET or PUT request required."
+        }, status=400)
+    '''
 '''
 import json
 from django.contrib.auth import authenticate, login, logout
