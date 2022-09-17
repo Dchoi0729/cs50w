@@ -9,12 +9,13 @@ urlpatterns = [
     path("logout", views.logout_view, name="logout"),
     path("register", views.register, name="register"),
     path("following", views.following, name="following"),
-    path("profile/<str:name>", views.profile, name="profile"),
+    path("profile/<str:name>", views.profile_page, name="profile-page"),
     
     # API Routes
     path("posts", views.compose, name="compose"),
     path("posts/<str:path>", views.posts, name="load_posts"),
-    path("post/<int:post_id>", views.post, name="post")
+    path("post/<int:post_id>", views.post, name="post"),
+    path("profile-info/<str:name>", views.profile, name="profile")
 ]
 '''
 path("posts/<int:email_id>", views.email, name="email"),

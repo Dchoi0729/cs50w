@@ -113,6 +113,10 @@
     border-radius: 10px;
 }
 
+.profile-me{
+    cursor: pointer;
+}
+
 #profile-description{
     height: 300px;
     width: 300px;
@@ -120,15 +124,20 @@
     border-radius: 10px;
     display: flex;
     flex-direction: column;
+    justify-content: center;
     align-items: center;
-    gap: 15px;
+    gap: 10px;
+}
+
+#profile-name{
+    margin-bottom: 0px;
 }
 
 #profile-bio{
     border: 1px solid black;
     border-radius: 8px;
     width: 250px;
-    height: 150px;
+    height: 100px;
     overflow: auto;
     background-color: white;
     padding: 2px;

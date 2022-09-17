@@ -2,9 +2,11 @@ document.addEventListener('DOMContentLoaded', function() {
     // Make sure static js is working
     console.log('9/17-2!!');
 
+
     const curr_page = get_curr_page();
     load_posts(curr_page);
 
+    // Index page
     if(curr_page === 'index'){
       document.getElementById('post-form').onsubmit = () => {
         document.getElementById('post-form-error').innerHTML = '';
@@ -29,8 +31,16 @@ document.addEventListener('DOMContentLoaded', function() {
         return false;
       }
     }
+
+    // Profile page
+    if(curr_page === "profile"){
+
+      // Load for the first time
+      load_profile_page();      
+    }
   });
 
+  
 
 // Returns as a string the current page the user is on
 function get_curr_page(){
@@ -41,6 +51,84 @@ function get_curr_page(){
     return location.pathname.split('/')[1]
   }
 }
+
+
+// Load profile content page for the first time
+function load_profile_page(){
+  fetch(`/profile-info/${location.pathname.split('/')[2]}`)
+  .then(response => response.json())
+  .then(profile => {
+    document.getElementById('profile-name').innerHTML = profile['name'];
+    let pic = document.getElementById('profile-img');
+    pic.setAttribute('src', profile['pic']);
+    
+    let infoBar = document.getElementById('profile-info');
+    infoBar.innerHTML = `
+    <div class="col-sm-4 mx-auto center-block text-center">posts<br>${profile['postCount']}</div>
+    <div class="col-sm-4 mx-auto center-block text-center">followers<br>${profile['followers']}</div>
+    <div class="col-sm-4 mx-auto center-block text-center">following<br>${profile['following']}</div>
+    `
+
+    let followButton = document.getElementById('profile-follow');
+    followButton.style.display = profile['self'] ? 'none' : 'block';
+    if(!profile['self']){
+      followButton.innerHTML = profile['isFollowing'] ? 'Unfollow' : 'Follow';
+      followButton.addEventListener('click', () => {
+        console.log(location.pathname.split('/')[2])
+        fetch(`/profile-info/${location.pathname.split('/')[2]}`, {
+          method: 'POST',
+          body: JSON.stringify({
+            action: 'toggle-follow',
+          })
+        })
+        .then(response => response.json())
+        .then(result => {
+          console.log(result);
+          load_profile();
+        })
+      })
+    }else{
+      // Make bio editing here
+      // 1. make it so that flex box is orderd and i create button tag only if needed\
+      // 2. make picture clickable to make link (modal!)
+      // 3. make bio editable (like post content)
+      pic.setAttribute('class', 'profile-me');
+      pic.addEventListener('click', () => console.log('hi!'))
+    }
+    
+  })
+}
+
+
+// Load profile content
+function load_profile(){
+  fetch(`/profile-info/${location.pathname.split('/')[2]}`)
+  .then(response => response.json())
+  .then(profile => {
+    document.getElementById('profile-name').innerHTML = profile['name'];
+    document.getElementById('profile-img').setAttribute('src', profile['pic']);
+    
+    let infoBar = document.getElementById('profile-info');
+    infoBar.innerHTML = `
+    <div class="col-sm-4 mx-auto center-block text-center">posts<br>${profile['postCount']}</div>
+    <div class="col-sm-4 mx-auto center-block text-center">followers<br>${profile['followers']}</div>
+    <div class="col-sm-4 mx-auto center-block text-center">following<br>${profile['following']}</div>
+    `
+
+    let followButton = document.getElementById('profile-follow');
+    followButton.style.display = profile['self'] ? 'none' : 'block';
+    if(!profile['self']){
+      followButton.innerHTML = profile['isFollowing'] ? 'Unfollow' : 'Follow';
+    }
+    
+  })
+}
+
+// Lets user follow/unfollow
+function toggle_follow(){
+  document.getElementById('profile-follow')
+  console.log('hi')
+} 
 
 
 // Loads all the posts and appends to post div on page
@@ -143,8 +231,6 @@ function load_post_content(post){
 // User likes/dislikes post
 function likePost(event, post){
   console.log(event.target)
-  //heart_url = post['liked'] ? 'https://cdn-icons-png.flaticon.com/512/2107/2107952.png' : 'https://cdn-icons-png.flaticon.com/512/2107/2107774.png';
-  //document.getElementById(`heart-${post['id']}`).setAttribute('src', heart_url)
 
   fetch(`/post/${post['id']}`, {
     method: 'POST',

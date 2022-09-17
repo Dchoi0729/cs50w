@@ -3,23 +3,19 @@
 
 {% block header %}
     <div id="profile">
-        <img id="profile-img" src="{{pic}}">
+        <img id="profile-img">
         <div id="profile-description">
-            <h1 id="profile-name">{{ name }}</h1>
-            <div class="row">
-                <div class="col-sm-4 mx-auto center-block text-center">posts<br>{{postCount}}</div>
-                <div class="col-sm-4 mx-auto center-block text-center">following<br>{{following}}</div>
-                <div class="col-sm-4 mx-auto center-block text-center">followers<br>{{followers}}</div>
+            <h1 id="profile-name"></h1>
+            <button id="profile-follow" class="btn btn-primary" style="display:none"></button>
+            <div id="profile-info" class="row">
             </div>
             <div id="profile-bio">
-                bio goes here
             </div>
         </div>
     </div>
 {% endblock %}
 
 {% block post %}
-    Posts go here!
 {% endblock %}
 
 {% block script %}

@@ -7,6 +7,14 @@ class User(AbstractUser):
     bio = models.TextField(blank=True)
     following = models.ManyToManyField('self', related_name="followers", symmetrical=False, blank=True)
 
+    def serialize(self):
+        return {
+            "name" : self.username,
+            "pic" : self.profile_pic,
+            "bio" : self.bio,
+            "following" : self.following.count()
+        }
+
 
 class Post(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="posts", blank=True, null=True)
