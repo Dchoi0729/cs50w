@@ -97,6 +97,7 @@ def profile(request, name):
     except Post.DoesNotExist:
         return JsonResponse({"error": "User not found."}, status=404)
 
+    # Check if current user follows given user
     is_following = False
     if not user == request.user:
         if user in request.user.following.all():
@@ -120,6 +121,14 @@ def profile(request, name):
                 request.user.following.add(user)
             request.user.save()
             return JsonResponse({"message": "user follow toggled successfully."}, status=201)
+
+        elif json.loads(request.body).get("action") == "edit-photo":
+            url = json.loads(request.body).get("url")
+            if url == "":
+                return JsonResponse({"error": "empty url"}, status=201)
+            request.user.profile_pic = url
+            request.user.save()
+            return JsonResponse({"message": "picture edited successfully."}, status=201)
 
 
 @csrf_exempt

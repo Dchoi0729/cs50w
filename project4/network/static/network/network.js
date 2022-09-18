@@ -1,7 +1,6 @@
 document.addEventListener('DOMContentLoaded', function() {
     // Make sure static js is working
-    console.log('9/17-2!!');
-
+    console.log('9/18-3!!');
 
     const curr_page = get_curr_page();
     load_posts(curr_page);
@@ -68,11 +67,14 @@ function load_profile_page(){
     <div class="col-sm-4 mx-auto center-block text-center">followers<br>${profile['followers']}</div>
     <div class="col-sm-4 mx-auto center-block text-center">following<br>${profile['following']}</div>
     `
-
-    let followButton = document.getElementById('profile-follow');
-    followButton.style.display = profile['self'] ? 'none' : 'block';
+    
     if(!profile['self']){
+      let followButton = document.createElement('button')
+      followButton.setAttribute('id', 'profile-follow')
+      followButton.setAttribute('class', 'btn btn-primary')
       followButton.innerHTML = profile['isFollowing'] ? 'Unfollow' : 'Follow';
+      let div = document.getElementById('profile-description');
+      div.insertBefore(followButton, div.children[1])
       followButton.addEventListener('click', () => {
         console.log(location.pathname.split('/')[2])
         fetch(`/profile-info/${location.pathname.split('/')[2]}`, {
@@ -89,11 +91,30 @@ function load_profile_page(){
       })
     }else{
       // Make bio editing here
-      // 1. make it so that flex box is orderd and i create button tag only if needed\
       // 2. make picture clickable to make link (modal!)
       // 3. make bio editable (like post content)
       pic.setAttribute('class', 'profile-me');
-      pic.addEventListener('click', () => console.log('hi!'))
+      pic.setAttribute('data-toggle', 'modal');
+      pic.setAttribute('data-target', '#picModal');
+      
+      let photoButton = document.getElementById('edit-photo-button');
+      photoButton.addEventListener('click', () => {
+        const newUrl = document.getElementById('newPhoto');
+        fetch(`/profile-info/${location.pathname.split('/')[2]}`, {
+          method: 'POST',
+          body: JSON.stringify({
+            action: 'edit-photo',
+            url: newUrl.value
+          })
+        })
+        .then(response => response.json())
+        .then(result => {
+          console.log(result);
+          load_profile();
+          load_posts('profile');
+        })
+        newUrl.value = '';
+      })
     }
     
   })
@@ -115,20 +136,14 @@ function load_profile(){
     <div class="col-sm-4 mx-auto center-block text-center">following<br>${profile['following']}</div>
     `
 
-    let followButton = document.getElementById('profile-follow');
-    followButton.style.display = profile['self'] ? 'none' : 'block';
     if(!profile['self']){
+      let followButton = document.getElementById('profile-follow');
+      followButton.style.display = profile['self'] ? 'none' : 'block';
       followButton.innerHTML = profile['isFollowing'] ? 'Unfollow' : 'Follow';
     }
     
   })
 }
-
-// Lets user follow/unfollow
-function toggle_follow(){
-  document.getElementById('profile-follow')
-  console.log('hi')
-} 
 
 
 // Loads all the posts and appends to post div on page

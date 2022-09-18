@@ -95,6 +95,10 @@
 
 
 /* profile page css */
+#newPhoto{
+    width: 100%
+}
+
 #profile{
     display: flex;
     justify-content: center;
