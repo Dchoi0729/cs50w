@@ -8,6 +8,7 @@ from django import forms
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
+from django.core.paginator import Paginator
 import json
 
 
@@ -22,15 +23,8 @@ class PostForm(ModelForm):
         }
 
 
-def index(request):
-    return render(request, "network/index.html",{
-        "form": PostForm()
-    })
-
-
 def login_view(request):
     if request.method == "POST":
-
         # Attempt to sign user in
         username = request.POST["username"]
         password = request.POST["password"]
@@ -85,6 +79,9 @@ def following(request):
 
 def profile_page(request, name):    
     return render(request, "network/profile.html")
+
+def index(request):
+    return render(request, "network/index.html")
 
 
 @csrf_exempt
@@ -155,22 +152,44 @@ def compose(request):
 
     return JsonResponse({"message": "post uploaded successfully."}, status=201)
 
+'''
+def listing(request):
+    contact_list = Contact.objects.all()
+    paginator = Paginator(contact_list, 25) # Show 25 contacts per page.
 
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    return render(request, 'list.html', {'page_obj': page_obj})
+'''
+
+def test(request):
+    post_list = Post.objects.all()
+    paginator = Paginator(post_list, 2)
+
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    return render(request, 'network/test.html', {
+        'page_obj' : page_obj,
+        'page_num' : paginator.num_pages
+    })
+
+# TODO: use what i have above to make pagination work
 @login_required
 def posts(request, path):
 
-    page = path.split("-")[0]
+    path_arr = path.split("-")
+    page_number = request.GET.get('page')
 
     # Filter posts returned based on page
-    if page == "index":
+    if path_arr[0] == "index":
         posts = Post.objects.all()
-    elif page == "profile":
-        name = path.split('-')[1]
+    elif path_arr[0] == "profile":
+        name = path_arr[1]
         user = User.objects.get(username=name)
         posts = Post.objects.filter(
             user=user
         )
-    elif page == "following":
+    elif path_arr[0] == "following":
         following = tuple(request.user.following.all())
         posts = Post.objects.filter(user__in = following)
 
@@ -179,14 +198,20 @@ def posts(request, path):
 
     # Return posts in reverse chronologial order
     posts = posts.order_by("-date").all()
+
+    # Serialize pages
+    paginator = Paginator(posts, 2)
+    page_obj =  paginator.get_page(page_number)
+    serialized_posts = [post.serialize() for post in page_obj]
     
     # Include whether current user liked post
-    serialized_posts = [post.serialize() for post in posts]
-    
+    #serialized_posts = [post.serialize() for post in posts]    
     for post in serialized_posts:
         liked = request.user in Post.objects.get(id=post["id"]).likes.all()
         post.update({"liked": liked, "self": request.user.username == post["user"]})
-
+    
+    serialized_posts.append({'total_page' : paginator.num_pages})
+    
     return JsonResponse(serialized_posts, safe=False)
 
 

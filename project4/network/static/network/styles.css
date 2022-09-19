@@ -5,6 +5,18 @@
 /* container for login.html and register.html*/
 
 
+/* layout pagination div css */
+#pagination-container{
+    background-color: lightgray;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+    height: 50px;
+}
+/* layout pagination div css */
+
+
 /* layout post div css */
 #posts{
     display: flex;
@@ -91,7 +103,6 @@
 }
 
 /* layout post div css */
-
 
 
 /* profile page css */

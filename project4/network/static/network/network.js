@@ -146,26 +146,50 @@ async function loadProfile(data=''){
 
 
 // TODO: CHANGE THIS SO WE CAN PAGINATE!!!!
+
 // Loads all the posts and appends the post divs to the current page
-function loadAllPosts(path){
+// By default loads the first page of posts
+function loadAllPosts(path, page=1){
   document.getElementById('posts').innerHTML = '';
+  let totalPage = 0;
 
   if(path === 'profile'){
     path = `profile-${location.pathname.split('/')[2]}`
   }
-  fetch(`/posts/${path}`)
+  fetch(`/posts/${path}?page=${page}`)
   .then(response => response.json())
   .then(posts => {
     console.log(posts)
     posts.forEach(post => {
-      let div = document.createElement('div');
-      div.setAttribute('class', 'post-container')
-      div.setAttribute('id', post['id']);
-      document.getElementById('posts').append(div);
-      
-      loadPost(post);
+      if(post['id']){
+        let div = document.createElement('div');
+        div.setAttribute('class', 'post-container')
+        div.setAttribute('id', post['id']);
+        document.getElementById('posts').append(div);
+        
+        loadPost(post);
+      }else{
+        totalPage = posts['total_page']
+      }
+
     })
+    
+    // Add pagiantion navigators here!
+    console.log(posts.length);
+    if(posts.length > 1){
+      addPaginator(page, totalPage);
+    }
   });
+}
+
+// 2. Create nav items, and add event listeners that will calls loadAllPosts with correct page!
+//    i. probably easier to just create elements and append it...
+
+// Add paginator nav bar at the bottom of the page
+function addPaginator(currPage, totalPage){
+  console.log(`Currently at page ${currPage}`);
+  let paginationContainer = document.getElementById('pagination-container');
+  paginationContainer.innerHTML = `TODO`;
 }
 
 

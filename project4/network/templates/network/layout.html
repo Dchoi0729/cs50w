@@ -15,7 +15,7 @@
     <body>
 
         <nav class="navbar navbar-expand-lg navbar-light bg-light">
-            <a class="navbar-brand" href="#">Network</a>
+            <a class="navbar-brand" href="{% url 'test' %}">Network</a>
           
             <div>
               <ul class="navbar-nav mr-auto">
@@ -53,6 +53,7 @@
             {% block post %}
             {% endblock %}
         </div>
-
+        <div id="pagination-container">
+        </div>
     </body>
 </html>
