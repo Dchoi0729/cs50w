@@ -11,8 +11,8 @@ from django.http import JsonResponse
 from django.core.paginator import Paginator
 import json
 
-
 from .models import User, Post
+
 
 class PostForm(ModelForm):
     class Meta:
@@ -85,7 +85,6 @@ def index(request):
 
 
 @csrf_exempt
-@login_required
 def profile(request, name):
 
     # Query for requested user
@@ -96,14 +95,15 @@ def profile(request, name):
 
     # Check if current user follows given user
     is_following = False
-    if not user == request.user:
-        if user in request.user.following.all():
-            is_following = True
+    if request.user.is_authenticated:
+        if not user == request.user:
+            if user in request.user.following.all():
+                is_following = True
 
     if request.method == "GET":
         serialized_user = user.serialize()
         serialized_user.update({
-            "self": request.user == user, 
+            "self": request.user == user if request.user.is_authenticated else True, 
             "isFollowing": is_following,
             "followers": user.followers.all().count(),
             "postCount": user.posts.all().count()
@@ -126,6 +126,12 @@ def profile(request, name):
             request.user.profile_pic = url
             request.user.save()
             return JsonResponse({"message": "picture edited successfully."}, status=201)
+        
+        elif json.loads(request.body).get("action") == "edit-bio":
+            bio = json.loads(request.body).get("bio")
+            request.user.bio = bio
+            request.user.save()
+            return JsonResponse({"message": "bio edited successfully."}, status=201)
 
 
 @csrf_exempt
@@ -173,8 +179,7 @@ def test(request):
         'page_num' : paginator.num_pages
     })
 
-# TODO: use what i have above to make pagination work
-@login_required
+
 def posts(request, path):
 
     path_arr = path.split("-")
@@ -204,8 +209,8 @@ def posts(request, path):
     page_obj =  paginator.get_page(page_number)
     serialized_posts = [post.serialize() for post in page_obj]
     
-    # Include whether current user liked post
-    #serialized_posts = [post.serialize() for post in posts]    
+
+    #if request.user.is_authenticated:
     for post in serialized_posts:
         liked = request.user in Post.objects.get(id=post["id"]).likes.all()
         post.update({"liked": liked, "self": request.user.username == post["user"]})

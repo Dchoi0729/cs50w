@@ -1,11 +1,15 @@
 document.addEventListener('DOMContentLoaded', function() { 
-  console.log('9/19-2!!');
+  console.log('9/20-4!!');
 
   const currPath = getCurrPath();
 
   // If user is on index path, add event listener for submission form
   if(currPath === 'index'){
-    addPostForm();
+    try{
+      addPostForm();
+    }catch(exception){
+      console.log('post form not added - sign in to post');
+    }
   }
 
   // If user is on profile page, load profile contents
@@ -16,7 +20,7 @@ document.addEventListener('DOMContentLoaded', function() {
         addFollowButton(data['isFollowing']);
       }
       else{
-        addUserSetting();
+        addUserSetting(data['bio']);
       }
       loadProfile(data);
     })()  
@@ -96,12 +100,19 @@ function addFollowButton(isFollowing){
 
 
 // Makes picture and bio editable if current user matches the profile user
-function addUserSetting(){
+function addUserSetting(bioContent){
   let pic = document.getElementById('profile-img');
   pic.setAttribute('class', 'profile-me');
   pic.setAttribute('data-toggle', 'modal');
   pic.setAttribute('data-target', '#picModal');
-  
+
+  let bio = document.getElementById('profile-bio');
+  bio.setAttribute('class', 'profile-me');
+  bio.setAttribute('data-toggle', 'modal');
+  bio.setAttribute('data-target', '#bioModal');
+  let newBio = document.getElementById('newBio');
+  newBio.innerHTML = bioContent;
+
   let photoButton = document.getElementById('edit-photo-button');
   photoButton.addEventListener('click', () => {
     const newUrl = document.getElementById('newPhoto');
@@ -119,6 +130,22 @@ function addUserSetting(){
     })
     newUrl.value = '';
   })
+
+  let bioButton = document.getElementById('edit-bio-button');
+  bioButton.addEventListener('click', () => {
+    fetch(`/profile-info/${location.pathname.split('/')[2]}`, {
+      method: 'POST',
+      body: JSON.stringify({
+        action: 'edit-bio',
+        bio: newBio.value
+      })
+    })
+    .then(response => response.json())
+    .then(result => {
+      console.log(result);
+      loadProfile();
+    })
+  })
 }
 
 
@@ -129,6 +156,7 @@ async function loadProfile(data=''){
   }
   document.getElementById('profile-name').innerHTML = data['name'];
   document.getElementById('profile-img').setAttribute('src', data['pic']);
+  document.getElementById('profile-bio').innerHTML = data['bio'];
   
   let infoBar = document.getElementById('profile-info');
   infoBar.innerHTML = `
@@ -145,18 +173,16 @@ async function loadProfile(data=''){
 }
 
 
-// TODO: CHANGE THIS SO WE CAN PAGINATE!!!!
-
 // Loads all the posts and appends the post divs to the current page
 // By default loads the first page of posts
-function loadAllPosts(path, page=1){
+function loadAllPosts(path, currPage=1){
   document.getElementById('posts').innerHTML = '';
   let totalPage = 0;
 
   if(path === 'profile'){
     path = `profile-${location.pathname.split('/')[2]}`
   }
-  fetch(`/posts/${path}?page=${page}`)
+  fetch(`/posts/${path}?page=${currPage}`)
   .then(response => response.json())
   .then(posts => {
     console.log(posts)
@@ -169,27 +195,67 @@ function loadAllPosts(path, page=1){
         
         loadPost(post);
       }else{
-        totalPage = posts['total_page']
+        totalPage = post['total_page']
       }
 
     })
-    
-    // Add pagiantion navigators here!
-    console.log(posts.length);
-    if(posts.length > 1){
-      addPaginator(page, totalPage);
+    if(totalPage > 1){
+      addPaginator(currPage, totalPage);
     }
   });
 }
 
-// 2. Create nav items, and add event listeners that will calls loadAllPosts with correct page!
-//    i. probably easier to just create elements and append it...
 
 // Add paginator nav bar at the bottom of the page
 function addPaginator(currPage, totalPage){
   console.log(`Currently at page ${currPage}`);
   let paginationContainer = document.getElementById('pagination-container');
-  paginationContainer.innerHTML = `TODO`;
+  paginationContainer.innerHTML = ''
+
+  let paginationList = document.createElement('ul');
+  paginationList.setAttribute('class', 'pagination');
+
+  if(currPage > 2){
+    paginationList.append(createPaginationIcon(false, 1));
+  }
+  if(currPage > 3){
+    paginationList.append(createPaginationIcon(false, '...', breaker=true));
+  }
+  if(currPage > 1){
+    paginationList.append(createPaginationIcon(false, currPage - 1));
+  }
+  paginationList.append(createPaginationIcon(true, currPage));
+  if(currPage + 1 <= totalPage){
+    paginationList.append(createPaginationIcon(false, currPage + 1));
+  }
+  if(currPage + 2 < totalPage){
+    paginationList.append(createPaginationIcon(false, '...', breaker=true));
+  }
+  if(currPage + 1 < totalPage){
+    paginationList.append(createPaginationIcon(false, totalPage));
+  }
+  paginationContainer.appendChild(paginationList);
+}
+
+
+// Helper function that creates and returns pagination button
+function createPaginationIcon(isCurrent, content, breaker=false){
+  let li = document.createElement('li')
+  let button = document.createElement('button');
+  if(!breaker){
+    li.setAttribute('class', isCurrent ? 'page-item active' : 'page-item');
+    if(isCurrent){
+      li.setAttribute('aria-current', 'page');
+    }
+    button.addEventListener('click', () => loadAllPosts(getCurrPath(), currPage=content));
+  }else{
+    li.setAttribute('class', 'page-item disabled');
+  }
+  button.setAttribute('class', 'page-link');
+  button.innerHTML = content;
+  li.append(button);
+
+  return li;
 }
 
 

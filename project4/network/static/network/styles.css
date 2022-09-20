@@ -7,7 +7,6 @@
 
 /* layout pagination div css */
 #pagination-container{
-    background-color: lightgray;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -130,6 +129,11 @@
 
 .profile-me{
     cursor: pointer;
+}
+
+#bio-modal-body{
+    display: flex;
+    flex-direction: column;
 }
 
 #profile-description{
