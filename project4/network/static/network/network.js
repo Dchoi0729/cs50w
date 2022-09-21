@@ -1,14 +1,12 @@
 document.addEventListener('DOMContentLoaded', function() { 
-  console.log('9/20-4!!');
+  console.log('9/21-2!!');
 
   const currPath = getCurrPath();
 
   // If user is on index path, add event listener for submission form
   if(currPath === 'index'){
-    try{
+    if(isLoggedIn === 'True'){
       addPostForm();
-    }catch(exception){
-      console.log('post form not added - sign in to post');
     }
   }
 
@@ -17,7 +15,9 @@ document.addEventListener('DOMContentLoaded', function() {
     (async () => {
       data = await loadProfileData();
       if(!data['self']){
-        addFollowButton(data['isFollowing']);
+        if(isLoggedIn === 'True'){
+          addFollowButton(data['isFollowing']);
+        }
       }
       else{
         addUserSetting(data['bio']);
@@ -125,6 +125,7 @@ function addUserSetting(bioContent){
     })
     .then(response => response.json())
     .then(result => {
+      console.log(result);
       loadProfile();
       loadAllPosts('profile');
     })
@@ -166,9 +167,11 @@ async function loadProfile(data=''){
   `
 
   if(!data['self']){
-    let followButton = document.getElementById('profile-follow');
-    followButton.style.display = data['self'] ? 'none' : 'block';
-    followButton.innerHTML = data['isFollowing'] ? 'Unfollow' : 'Follow';
+    if(isLoggedIn === 'True'){
+      let followButton = document.getElementById('profile-follow');
+      followButton.style.display = data['self'] ? 'none' : 'block';
+      followButton.innerHTML = data['isFollowing'] ? 'Unfollow' : 'Follow';
+    }
   }
 }
 
@@ -185,7 +188,6 @@ function loadAllPosts(path, currPage=1){
   fetch(`/posts/${path}?page=${currPage}`)
   .then(response => response.json())
   .then(posts => {
-    console.log(posts)
     posts.forEach(post => {
       if(post['id']){
         let div = document.createElement('div');
@@ -208,7 +210,6 @@ function loadAllPosts(path, currPage=1){
 
 // Add paginator nav bar at the bottom of the page
 function addPaginator(currPage, totalPage){
-  console.log(`Currently at page ${currPage}`);
   let paginationContainer = document.getElementById('pagination-container');
   paginationContainer.innerHTML = ''
 
@@ -270,7 +271,6 @@ async function loadPostData(id){
 async function loadPost(post, reload=false){
   if(reload){
     post = await loadPostData(post['id'])
-    console.log('reload');
   }
   let container = document.getElementById(post['id']);
   container.innerHTML = '';
@@ -303,10 +303,12 @@ async function loadPost(post, reload=false){
   let heartIcon = document.createElement('img');
   const heartUrl = post['liked'] ? 'https://cdn-icons-png.flaticon.com/512/2107/2107774.png' : 'https://cdn-icons-png.flaticon.com/512/2107/2107952.png';
   heartIcon.setAttribute('src',  heartUrl);
-  heartIcon.setAttribute('class', 'post-heart');
+  heartIcon.setAttribute('class', isLoggedIn === 'True' ? 'post-heart active' : 'post-heart');
   heartIcon.setAttribute('id', `heart-${post['id']}`);
-  heartIcon.addEventListener('click', () => likePost(post));
-  
+  if(isLoggedIn === 'True'){
+    heartIcon.addEventListener('click', () => likePost(post));
+  }
+
   let likes = document.createElement('div');
   likes.setAttribute('class', 'post-likes');
   likes.innerHTML = post['likes'];
@@ -371,124 +373,3 @@ function editPostContent(post){
   let edit = document.getElementById(`edit-${post['id']}`);
   edit.style.display = 'none';
 }
-
-/*
-// Load profile content page for the first time
-function loadProfile_page(){
-  fetch(`/profile-info/${location.pathname.split('/')[2]}`)
-  .then(response => response.json())
-  .then(profile => {
-    document.getElementById('profile-name').innerHTML = profile['name'];
-    
-    let pic = document.getElementById('profile-img');
-    pic.setAttribute('src', profile['pic']);
-    
-    let infoBar = document.getElementById('profile-info');
-    infoBar.innerHTML = `
-    <div class="col-sm-4 mx-auto center-block text-center">posts<br>${profile['postCount']}</div>
-    <div class="col-sm-4 mx-auto center-block text-center">followers<br>${profile['followers']}</div>
-    <div class="col-sm-4 mx-auto center-block text-center">following<br>${profile['following']}</div>
-    `
-    
-    if(!profile['self']){
-      let followButton = document.createElement('button')
-      followButton.setAttribute('id', 'profile-follow')
-      followButton.setAttribute('class', 'btn btn-primary')
-      followButton.innerHTML = profile['isFollowing'] ? 'Unfollow' : 'Follow';
-      let div = document.getElementById('profile-description');
-      div.insertBefore(followButton, div.children[1])
-      followButton.addEventListener('click', () => {
-        console.log(location.pathname.split('/')[2])
-        fetch(`/profile-info/${location.pathname.split('/')[2]}`, {
-          method: 'POST',
-          body: JSON.stringify({
-            action: 'toggle-follow',
-          })
-        })
-        .then(response => response.json())
-        .then(result => {
-          console.log(result);
-          loadProfile();
-        })
-      })
-    }else{
-      pic.setAttribute('class', 'profile-me');
-      pic.setAttribute('data-toggle', 'modal');
-      pic.setAttribute('data-target', '#picModal');
-      
-      let photoButton = document.getElementById('edit-photo-button');
-      photoButton.addEventListener('click', () => {
-        const newUrl = document.getElementById('newPhoto');
-        fetch(`/profile-info/${location.pathname.split('/')[2]}`, {
-          method: 'POST',
-          body: JSON.stringify({
-            action: 'edit-photo',
-            url: newUrl.value
-          })
-        })
-        .then(response => response.json())
-        .then(result => {
-          console.log(result);
-          loadProfile();
-          loadAllPosts('profile');
-        })
-        newUrl.value = '';
-      })
-    }
-  })
-}
-
-// Load post content
-function loadPost_content(post){
-  let container = document.getElementById(post['id']);
-  container.innerHTML = '';
-
-  let header = document.createElement('div');
-  header.setAttribute('class', 'post-header');
-  header.setAttribute('id', `header-${post['id']}`);
-  header.innerHTML = `
-  <img src="${post['pic']}" class="post-profile-pic">
-  <a class="post-username" href="/profile/${post['user']}">${post['user']}</a>
-  `
-  if(post['self']){
-    let edit = document.createElement('span');
-    edit.setAttribute('class', 'post-edit');
-    edit.setAttribute('id', `edit-${post['id']}`);
-    edit.innerHTML = 'edit';
-    edit.addEventListener('click', (event) => editPostContent(event, post));
-    header.append(edit);
-  }
-
-  let content = document.createElement('textarea');
-  content.setAttribute('readonly', true);
-  content.setAttribute('id', `content-${post['id']}`);
-  content.setAttribute('class', 'post-content');
-  content.innerHTML = post['content'];
-
-
-  let footer = document.createElement('div');
-  footer.setAttribute('class', 'post-footer');
-  
-  let heartIcon = document.createElement('img');
-  heartUrl = post['liked'] ? 'https://cdn-icons-png.flaticon.com/512/2107/2107774.png' : 'https://cdn-icons-png.flaticon.com/512/2107/2107952.png';
-  heartIcon.setAttribute('src',  heartUrl);
-  heartIcon.setAttribute('class', 'post-heart');
-  heartIcon.setAttribute('id', `heart-${post['id']}`);
-  heartIcon.addEventListener('click', (event) => likePost(event, post));
-  
-  let likes = document.createElement('div');
-  likes.setAttribute('class', 'post-likes');
-  likes.innerHTML = post['likes'];
-
-  let time = document.createElement('div');
-  time.setAttribute('class', 'post-time');
-  time.innerHTML = post['date'];
-
-  footer.append(heartIcon);
-  footer.append(likes);
-  footer.append(time);
-
-  container.append(header);
-  container.append(content);
-  container.append(footer);
-}*/

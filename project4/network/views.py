@@ -1,26 +1,14 @@
+import json
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator
 from django.db import IntegrityError
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
 from django.urls import reverse
-from django.forms import ModelForm
-from django import forms
-from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
-from django.http import JsonResponse
-from django.core.paginator import Paginator
-import json
 
 from .models import User, Post
-
-
-class PostForm(ModelForm):
-    class Meta:
-        model = Post
-        exclude = ["user", "likes"]
-        widgets = {
-            'content': forms.Textarea(attrs={'rows': 4})
-        }
 
 
 def login_view(request):
@@ -74,11 +62,13 @@ def register(request):
         return render(request, "network/register.html")
 
 
-def following(request):
+def following_page(request):
     return render(request, "network/following.html")
+
 
 def profile_page(request, name):    
     return render(request, "network/profile.html")
+
 
 def index(request):
     return render(request, "network/index.html")
@@ -100,16 +90,18 @@ def profile(request, name):
             if user in request.user.following.all():
                 is_following = True
 
+    # Return profile data for GET request
     if request.method == "GET":
         serialized_user = user.serialize()
         serialized_user.update({
-            "self": request.user == user if request.user.is_authenticated else True, 
+            "self": request.user == user if request.user.is_authenticated else False, 
             "isFollowing": is_following,
             "followers": user.followers.all().count(),
             "postCount": user.posts.all().count()
         })
         return JsonResponse(serialized_user, safe=False)
 
+    # Edit profile model based on POST request
     if request.method == "POST":
         if json.loads(request.body).get("action") == "toggle-follow":
             if is_following:
@@ -149,7 +141,7 @@ def compose(request):
             "error": "Must provide content"
         }, status=400)
 
-    # Create post
+    # Create post based on POST request
     post = Post(
         user=request.user,
         content=content
@@ -158,32 +150,10 @@ def compose(request):
 
     return JsonResponse({"message": "post uploaded successfully."}, status=201)
 
-'''
-def listing(request):
-    contact_list = Contact.objects.all()
-    paginator = Paginator(contact_list, 25) # Show 25 contacts per page.
-
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
-    return render(request, 'list.html', {'page_obj': page_obj})
-'''
-
-def test(request):
-    post_list = Post.objects.all()
-    paginator = Paginator(post_list, 2)
-
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
-    return render(request, 'network/test.html', {
-        'page_obj' : page_obj,
-        'page_num' : paginator.num_pages
-    })
-
 
 def posts(request, path):
 
     path_arr = path.split("-")
-    page_number = request.GET.get('page')
 
     # Filter posts returned based on page
     if path_arr[0] == "index":
@@ -204,17 +174,20 @@ def posts(request, path):
     # Return posts in reverse chronologial order
     posts = posts.order_by("-date").all()
 
-    # Serialize pages
-    paginator = Paginator(posts, 2)
-    page_obj =  paginator.get_page(page_number)
-    serialized_posts = [post.serialize() for post in page_obj]
-    
+    # Paginate posts
+    paginator = Paginator(posts, 10)
+    page_obj =  paginator.get_page(request.GET.get('page'))
 
-    #if request.user.is_authenticated:
+    # Serialize page_obj
+    serialized_posts = [post.serialize() for post in page_obj]
     for post in serialized_posts:
         liked = request.user in Post.objects.get(id=post["id"]).likes.all()
-        post.update({"liked": liked, "self": request.user.username == post["user"]})
+        post.update({
+            "liked": liked, 
+            "self": request.user.username == post["user"]
+            })
     
+    # Add info for total number of pages for given path
     serialized_posts.append({'total_page' : paginator.num_pages})
     
     return JsonResponse(serialized_posts, safe=False)
@@ -230,12 +203,14 @@ def post(request, post_id):
     except Post.DoesNotExist:
         return JsonResponse({"error": "Post not found."}, status=404)
 
+    # Return post data for GET request
     if request.method == "GET":
         liked = request.user in post.likes.all()
         serialized_post = post.serialize()
         serialized_post.update({"liked": liked, "self": request.user.username == post.user.username})
         return JsonResponse(serialized_post, safe=False)
 
+    # Edit post based on POST request
     if request.method == "POST":
         if json.loads(request.body).get("action") == "toggle-like":
             liked = request.user in post.likes.all()

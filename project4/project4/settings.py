@@ -50,7 +50,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-CSRF_TRUSTED_ORIGINS = ['https://8000-dchoi0729-cs50w-rbo8p83gvkh.ws-us65.gitpod.io']
+CSRF_TRUSTED_ORIGINS = ['https://8000-dchoi0729-cs50w-rbo8p83gvkh.ws-us67.gitpod.io']
 
 ROOT_URLCONF = 'project4.urls'
 

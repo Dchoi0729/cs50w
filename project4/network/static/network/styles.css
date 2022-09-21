@@ -89,8 +89,11 @@
 
 .post-heart{
     height: 25px;
-    cursor:pointer;
     margin-right: 5px;
+}
+
+.active{
+    cursor:pointer;
 }
 
 .post-likes{
