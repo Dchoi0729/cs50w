@@ -65,6 +65,14 @@
     text-decoration: underline;
 }
 
+.post-trash{
+    position: relative;
+    top: 20px;
+    margin-left: 10px;
+    cursor: pointer;
+    height: 25px;
+}
+
 .save-edit{
     display: flex;
     align-items: center;

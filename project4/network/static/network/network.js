@@ -343,7 +343,7 @@ function likePost(post){
 }
 
 
-// Make POST API call to update content for given post
+// Make POST API call to update content for given post or remove content
 function editPostContent(post){
   let header = document.getElementById(`header-${post['id']}`);
   
@@ -367,8 +367,15 @@ function editPostContent(post){
       loadPost(post, reload=true);
     })
   })
-  
   header.append(saveButton);
+
+  let trash = document.createElement('img');
+  trash.setAttribute('src' , 'https://cdn-icons-png.flaticon.com/512/1214/1214428.png');
+  trash.setAttribute('class', 'post-trash');
+  trash.addEventListener('click', () => {
+    console.log('hi');
+  })
+  header.append(trash);
   
   let edit = document.getElementById(`edit-${post['id']}`);
   edit.style.display = 'none';
