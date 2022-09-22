@@ -220,6 +220,7 @@ def post(request, post_id):
                 post.likes.add(request.user)
             post.save()
             return JsonResponse({"message": "post like toggled successfully."}, status=201)
+
         elif json.loads(request.body).get("action") == "edit-content":
             content = json.loads(request.body).get("content")
             if content == "":
@@ -228,5 +229,23 @@ def post(request, post_id):
                 post.content = content
                 post.save()
                 return JsonResponse({"message": "post edited successfully."}, status=201)
+
+        elif json.loads(request.body).get("action") == "delete":
+            last_post = Post.objects.get(id=json.loads(request.body).get("lastPost"))
+
+            # TODO: make this return posts from same user
+            next_post = Post.objects.filter(user=request.user, id__lt=last_post.id).order_by('pk').last()
+            post.delete()
+
+            liked = request.user in next_post.likes.all()
+            serialized_post = next_post.serialize()
+            serialized_post.update({
+                "liked": liked, 
+                "self": request.user.username == next_post.user.username
+                })
+            data = [serialized_post]
+            data.append({"message": "post deleted successfully"})
+
+            return JsonResponse(data, safe=False)
 
         return JsonResponse({"message": "this shouldn't run..."}, status=201)

@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', function() { 
-  console.log('9/21-2!!');
+  console.log('9/22-2!!');
 
   const currPath = getCurrPath();
 
@@ -176,7 +176,7 @@ async function loadProfile(data=''){
 }
 
 
-// Loads all the posts and appends the post divs to the current page
+// Loads all the posts and for the current page
 // By default loads the first page of posts
 function loadAllPosts(path, currPage=1){
   document.getElementById('posts').innerHTML = '';
@@ -189,11 +189,12 @@ function loadAllPosts(path, currPage=1){
   .then(response => response.json())
   .then(posts => {
     posts.forEach(post => {
-      if(post['id']){
+      if(post['id']){/*
         let div = document.createElement('div');
         div.setAttribute('class', 'post-container')
         div.setAttribute('id', post['id']);
         document.getElementById('posts').append(div);
+        */
         
         loadPost(post);
       }else{
@@ -267,13 +268,23 @@ async function loadPostData(id){
 }
 
 
-// Load post content in the post div container
+// Loads data for post and appends post div into container
+// If post already exists, updates that post with up to date info
 async function loadPost(post, reload=false){
+  console.log('hi')
   if(reload){
     post = await loadPostData(post['id'])
   }
   let container = document.getElementById(post['id']);
-  container.innerHTML = '';
+  const newPost = container == null;
+  //container.innerHTML = '';
+  if(newPost){
+    container = document.createElement('div');
+    container.setAttribute('class', 'post-container')
+    container.setAttribute('id', post['id']);
+  }else{
+    container.innerHTML = '';
+  }
 
   let header = document.createElement('div');
   header.setAttribute('class', 'post-header');
@@ -324,6 +335,10 @@ async function loadPost(post, reload=false){
   container.append(header);
   container.append(content);
   container.append(footer);
+
+  if(newPost){
+    document.getElementById('posts').append(container);
+  }
 }
 
 
@@ -372,8 +387,30 @@ function editPostContent(post){
   let trash = document.createElement('img');
   trash.setAttribute('src' , 'https://cdn-icons-png.flaticon.com/512/1214/1214428.png');
   trash.setAttribute('class', 'post-trash');
-  trash.addEventListener('click', () => {
-    console.log('hi');
+  trash.addEventListener('click', (event) => {    
+    // Add animation to make the deleted div go away
+    const element = event.target;
+    element.parentElement.parentElement.style.animationPlayState = 'running';
+    element.parentElement.parentElement.addEventListener('animationend', () => {
+      element.parentElement.parentElement.remove();
+    })
+
+    const postArr = document.querySelectorAll('.post-container')
+    
+    // TODO: Make pagination bar at the bottom change
+    fetch(`/post/${post['id']}`, {
+      method: 'POST',
+      body: JSON.stringify({
+        action: 'delete',
+        lastPost: postArr[postArr.length-1].id
+      })
+    })
+    .then(response => response.json())
+    .then(result => {
+      console.log(result);
+      loadPost(result[0]);
+      // Edit post count number here;
+    })
   })
   header.append(trash);
   
