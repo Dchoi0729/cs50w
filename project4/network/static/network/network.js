@@ -1,7 +1,9 @@
-document.addEventListener('DOMContentLoaded', function() { 
-  console.log('9/22-2!!');
+// Global variable
+let currPath;
 
-  const currPath = getCurrPath();
+// 'Main' function
+document.addEventListener('DOMContentLoaded', function() { 
+  currPath = getCurrPath();
 
   // If user is on index path, add event listener for submission form
   if(currPath === 'index'){
@@ -82,8 +84,6 @@ function addFollowButton(isFollowing){
   followButton.setAttribute('id', 'profile-follow');
   followButton.setAttribute('class', 'btn btn-primary');
   followButton.innerHTML = isFollowing ? 'Unfollow' : 'Follow';
-  let div = document.getElementById('profile-description');
-  div.insertBefore(followButton, div.children[1]);
   followButton.addEventListener('click', () => {
     fetch(`/profile-info/${location.pathname.split('/')[2]}`, {
       method: 'POST',
@@ -93,14 +93,20 @@ function addFollowButton(isFollowing){
     })
     .then(response => response.json())
     .then(result => {
+      console.log(result);
       loadProfile();
     })
   })
+
+  let div = document.getElementById('profile-description');
+  div.insertBefore(followButton, div.children[1]);
 }
 
 
 // Makes picture and bio editable if current user matches the profile user
 function addUserSetting(bioContent){
+  const name = location.pathname.split('/')[2];
+
   let pic = document.getElementById('profile-img');
   pic.setAttribute('class', 'profile-me');
   pic.setAttribute('data-toggle', 'modal');
@@ -110,13 +116,14 @@ function addUserSetting(bioContent){
   bio.setAttribute('class', 'profile-me');
   bio.setAttribute('data-toggle', 'modal');
   bio.setAttribute('data-target', '#bioModal');
+  
   let newBio = document.getElementById('newBio');
   newBio.innerHTML = bioContent;
 
   let photoButton = document.getElementById('edit-photo-button');
   photoButton.addEventListener('click', () => {
     const newUrl = document.getElementById('newPhoto');
-    fetch(`/profile-info/${location.pathname.split('/')[2]}`, {
+    fetch(`/profile-info/${name}`, {
       method: 'POST',
       body: JSON.stringify({
         action: 'edit-photo',
@@ -134,7 +141,7 @@ function addUserSetting(bioContent){
 
   let bioButton = document.getElementById('edit-bio-button');
   bioButton.addEventListener('click', () => {
-    fetch(`/profile-info/${location.pathname.split('/')[2]}`, {
+    fetch(`/profile-info/${name}`, {
       method: 'POST',
       body: JSON.stringify({
         action: 'edit-bio',
@@ -161,11 +168,12 @@ async function loadProfile(data=''){
   
   let infoBar = document.getElementById('profile-info');
   infoBar.innerHTML = `
-  <div class="col-sm-4 mx-auto center-block text-center">posts<br>${data['postCount']}</div>
+  <div id="post-count" class="col-sm-4 mx-auto center-block text-center">posts<br>${data['postCount']}</div>
   <div class="col-sm-4 mx-auto center-block text-center">followers<br>${data['followers']}</div>
   <div class="col-sm-4 mx-auto center-block text-center">following<br>${data['following']}</div>
   `
 
+  // If user is not the user of profile page, and the user is logged in, add follow button
   if(!data['self']){
     if(isLoggedIn === 'True'){
       let followButton = document.getElementById('profile-follow');
@@ -176,34 +184,35 @@ async function loadProfile(data=''){
 }
 
 
-// Loads all the posts and for the current page
+// Loads all the posts for the current page
 // By default loads the first page of posts
 function loadAllPosts(path, currPage=1){
   document.getElementById('posts').innerHTML = '';
-  let totalPage = 0;
+  path = path === 'profile' ? `profile-${location.pathname.split('/')[2]}` : path;
+  let totalPage;
 
-  if(path === 'profile'){
-    path = `profile-${location.pathname.split('/')[2]}`
-  }
   fetch(`/posts/${path}?page=${currPage}`)
   .then(response => response.json())
   .then(posts => {
     posts.forEach(post => {
-      if(post['id']){/*
-        let div = document.createElement('div');
-        div.setAttribute('class', 'post-container')
-        div.setAttribute('id', post['id']);
-        document.getElementById('posts').append(div);
-        */
-        
+      if(post['id']){
         loadPost(post);
       }else{
-        totalPage = post['total_page']
+        totalPage = post['total_page'];
       }
-
     })
-    if(totalPage > 1){
-      addPaginator(currPage, totalPage);
+    addPaginator(currPage, totalPage);
+
+    // If posts returned is zero
+    if(posts.length === 1){
+      let postContainer = document.getElementById('posts');
+      if(currPath === 'profile'){
+        postContainer.innerHTML = 'Go to \'All Posts\' to upload your first post!'
+      }
+      else if(currPath === 'following'){
+        postContainer.innerHTML = 'Click on user\'s username to be directed to their profile page where you can follow them!'
+      }
+      
     }
   });
 }
@@ -248,8 +257,9 @@ function createPaginationIcon(isCurrent, content, breaker=false){
     li.setAttribute('class', isCurrent ? 'page-item active' : 'page-item');
     if(isCurrent){
       li.setAttribute('aria-current', 'page');
+      li.setAttribute('id', 'active')
     }
-    button.addEventListener('click', () => loadAllPosts(getCurrPath(), currPage=content));
+    button.addEventListener('click', () => loadAllPosts(currPath, currPage=content));
   }else{
     li.setAttribute('class', 'page-item disabled');
   }
@@ -271,13 +281,11 @@ async function loadPostData(id){
 // Loads data for post and appends post div into container
 // If post already exists, updates that post with up to date info
 async function loadPost(post, reload=false){
-  console.log('hi')
   if(reload){
     post = await loadPostData(post['id'])
   }
   let container = document.getElementById(post['id']);
   const newPost = container == null;
-  //container.innerHTML = '';
   if(newPost){
     container = document.createElement('div');
     container.setAttribute('class', 'post-container')
@@ -388,28 +396,55 @@ function editPostContent(post){
   trash.setAttribute('src' , 'https://cdn-icons-png.flaticon.com/512/1214/1214428.png');
   trash.setAttribute('class', 'post-trash');
   trash.addEventListener('click', (event) => {    
-    // Add animation to make the deleted div go away
     const element = event.target;
     element.parentElement.parentElement.style.animationPlayState = 'running';
     element.parentElement.parentElement.addEventListener('animationend', () => {
       element.parentElement.parentElement.remove();
     })
 
-    const postArr = document.querySelectorAll('.post-container')
+    let totalPage = 1;
+    let currPage = 1;
+
+    // Get information about current pagination nav bar
+    if(document.getElementById('active') != null){
+      currPage = document.getElementById('active').firstChild.innerHTML;
+      totalPage = document.querySelector('.pagination').childElementCount;
+    }
+
+    const postArr = document.querySelectorAll('.post-container');
     
-    // TODO: Make pagination bar at the bottom change
     fetch(`/post/${post['id']}`, {
       method: 'POST',
       body: JSON.stringify({
         action: 'delete',
+        path: currPath,
         lastPost: postArr[postArr.length-1].id
       })
     })
     .then(response => response.json())
     .then(result => {
       console.log(result);
-      loadPost(result[0]);
-      // Edit post count number here;
+      const newTotalPage = result[0]['totalPage'];
+
+      // If there is a 'next' post older than the oldest post on page
+      if(result[1]){
+        loadPost(result[1]);
+        if(newTotalPage != totalPage){
+          addPaginator(currPage, newTotalPage);
+        }
+      }
+
+      // If deleted post was the only post on a page
+      if(currPage > newTotalPage){
+        loadAllPosts(currPath, newTotalPage);
+      }
+      
+      // Edit post count number if on profile page;
+      if(currPath == 'profile'){
+        let postCount = document.getElementById('post-count');
+        console.log(postCount);
+        postCount.innerHTML = `posts<br>${result[0]['postCount']}`;
+      }
     })
   })
   header.append(trash);

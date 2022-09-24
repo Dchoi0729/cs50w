@@ -1,4 +1,5 @@
 import json
+import math
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
@@ -232,10 +233,27 @@ def post(request, post_id):
 
         elif json.loads(request.body).get("action") == "delete":
             last_post = Post.objects.get(id=json.loads(request.body).get("lastPost"))
+            path = json.loads(request.body).get("path")
 
-            # TODO: make this return posts from same user
-            next_post = Post.objects.filter(user=request.user, id__lt=last_post.id).order_by('pk').last()
+            if path == "profile":
+                next_post = Post.objects.filter(user=request.user, id__lt=last_post.id).order_by('pk').last()
+                postCount = Post.objects.filter(user = request.user).count() - 1
+            else:
+                next_post = Post.objects.filter(id__lt=last_post.id).order_by('pk').last()
+                postCount = Post.objects.all().count() - 1
+            totalPage = math.ceil(postCount / 10)
             post.delete()
+
+            # Status data with success message and remaining pages after delete
+            data = [{
+                "message": "post deleted successfully", 
+                "totalPage": totalPage,
+                "postCount":postCount
+                }]
+
+            # If the next post does not exist, return status data here
+            if next_post == None:
+                return JsonResponse(data, safe=False)
 
             liked = request.user in next_post.likes.all()
             serialized_post = next_post.serialize()
@@ -243,8 +261,7 @@ def post(request, post_id):
                 "liked": liked, 
                 "self": request.user.username == next_post.user.username
                 })
-            data = [serialized_post]
-            data.append({"message": "post deleted successfully"})
+            data.append(serialized_post)
 
             return JsonResponse(data, safe=False)
 

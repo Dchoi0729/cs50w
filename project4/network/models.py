@@ -31,3 +31,6 @@ class Post(models.Model):
             "date": self.date.strftime("%b %d %Y, %I:%M %p"),
             "likes": self.likes.count()
         }
+    
+    def __str__(self):
+        return self.content
