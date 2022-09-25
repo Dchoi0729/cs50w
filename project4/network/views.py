@@ -77,14 +77,13 @@ def index(request):
 
 @csrf_exempt
 def profile(request, name):
-
     # Query for requested user
     try:
         user = User.objects.get(username=name)
-    except Post.DoesNotExist:
+    except User.DoesNotExist:
         return JsonResponse({"error": "User not found."}, status=404)
 
-    # Check if current user follows given user
+    # Check if current user follows requested user
     is_following = False
     if request.user.is_authenticated:
         if not user == request.user:
@@ -130,7 +129,6 @@ def profile(request, name):
 @csrf_exempt
 @login_required
 def compose(request):
-
     # Composing a new post must be via POST (POST to post ;) )
     if request.method != "POST":
         return JsonResponse({"error": "POST request required."}, status=400)
@@ -138,9 +136,7 @@ def compose(request):
     # Check if content is not empty
     content = json.loads(request.body).get("content")
     if content == "":
-        return JsonResponse({
-            "error": "Must provide content"
-        }, status=400)
+        return JsonResponse({"error": "Must provide content"}, status=400)
 
     # Create post based on POST request
     post = Post(
@@ -153,22 +149,23 @@ def compose(request):
 
 
 def posts(request, path):
-
     path_arr = path.split("-")
 
-    # Filter posts returned based on page
+    # Filter posts returned based on user's path
     if path_arr[0] == "index":
         posts = Post.objects.all()
     elif path_arr[0] == "profile":
         name = path_arr[1]
-        user = User.objects.get(username=name)
+        try:
+            user = User.objects.get(username=name)
+        except User.DoesNotExist:
+            return JsonResponse({"error": "User not found."}, status=404)
         posts = Post.objects.filter(
             user=user
         )
     elif path_arr[0] == "following":
         following = tuple(request.user.following.all())
         posts = Post.objects.filter(user__in = following)
-
     else:
         return JsonResponse({"error": "Invalid page."}, status=400)
 
@@ -197,14 +194,13 @@ def posts(request, path):
 @csrf_exempt
 @login_required
 def post(request, post_id):
-
     # Query for requested post
     try:
         post = Post.objects.get(id=post_id)
     except Post.DoesNotExist:
         return JsonResponse({"error": "Post not found."}, status=404)
 
-    # Return post data for GET request
+    # Return data about post for GET request
     if request.method == "GET":
         liked = request.user in post.likes.all()
         serialized_post = post.serialize()
@@ -235,6 +231,7 @@ def post(request, post_id):
             last_post = Post.objects.get(id=json.loads(request.body).get("lastPost"))
             path = json.loads(request.body).get("path")
 
+            # Decide which post to show next, and the total post count remaining after deletion
             if path == "profile":
                 next_post = Post.objects.filter(user=request.user, id__lt=last_post.id).order_by('pk').last()
                 postCount = Post.objects.filter(user = request.user).count() - 1
@@ -251,7 +248,7 @@ def post(request, post_id):
                 "postCount":postCount
                 }]
 
-            # If the next post does not exist, return status data here
+            # If next post does not exist, return status data here
             if next_post == None:
                 return JsonResponse(data, safe=False)
 

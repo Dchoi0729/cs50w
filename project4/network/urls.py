@@ -17,7 +17,3 @@ urlpatterns = [
     path("post/<int:post_id>", views.post, name="post"),
     path("profile-info/<str:name>", views.profile, name="profile")
 ]
-'''
-path("posts/<int:email_id>", views.email, name="email"),
-path("emails/<str:mailbox>", views.mailbox, name="mailbox")
-'''
